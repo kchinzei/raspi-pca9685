@@ -1,20 +1,20 @@
 Raspi PCA9685
 =============
 
-Raspi PCA9685 is built
-upon [Raspi Soft PWM](https://github.com/nebrius/raspi-soft-pwm) to
+Raspi PCA9685 is built upon
+[Raspi Soft PWM](https://github.com/nebrius/raspi-soft-pwm) to
 provide control of PCA9685 via I2C connection. Main purpose is to
 provide hardware PWM/Servo functions.
+
+** This is early alpha. Don't use. **
 
 ## System Requirements
 
 - Raspberry Pi Model B Rev 3 or newer (Not tested on older pi's) or Pi Zero.
 - [Raspi.js suite](https://github.com/nebrius/raspi) with [Raspi Soft PWM 6.0.2](https://github.com/nebrius/raspi-soft-pwm) or newer.
-- Node 6.4.0 or newer
+- Node 13.9.0 or newer (perhaps works with as old as v. 6, but not tested)
 
 ## Installation
-
-Install [raspi-soft-pwm](https://github.com/nebrius/raspi-soft-pwm).
 
 Install with npm:
 
@@ -24,6 +24,7 @@ npm install raspi-pca9685
 
 ## Credits
 
+Code started from modifying [raspi-soft-pwm](https://github.com/nebrius/raspi-soft-pwm) by nebrius.
 I learned PCA9685 access by looked into [pca9685 module](https://www.npmjs.com/package/pca9685) by Jason Heard.
 
 License
@@ -31,7 +32,7 @@ License
 
 The MIT License (MIT)
 
-Copyright (c) Tiago Alves <tralves@gmail.com> and Bryan Hughes <bryan@nebri.us>
+Copyright (c) K. Chinzei (kchinzei@gmail.com)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
