@@ -1,5 +1,5 @@
 {
-  "name": "raspi-pca9685",
+  "name": "raspi-pca9685-pwm",
   "version": "0.1.0",
   "description": "",
   "main": "index.js",
@@ -12,7 +12,7 @@
   "contributors": [
     {
       "name": "Kiyo Chinzei",
-      "email": "kchinzei@yahoo.co.jp"
+      "email": "kchinzei@gmail.com"
     },
   ],
   "bundleDependencies": false,
@@ -32,7 +32,7 @@
     "raspi-peripheral": "^3.0.3"
   },
   "deprecated": false,
-  "description": "Provides access to PCA9685 via I2C on the Raspberry Pi from Node.js ",
+  "description": "Provides PWM outputs by PCA9685 via I2C on the Raspberry Pi from Node.js ",
   "devDependencies": {
     "@types/raspi-i2c": "^6.2.4",
     "@types/i2c-bus": "^1.0.19",
@@ -45,7 +45,7 @@
   "engines": {
     "node": ">= 6.4.0"
   },
-  "homepage": "https://github.com/nebrius/raspi-i2c",
+  "homepage": "https://github.com/kchinzei/raspi-pca9685-pwm",
   "keywords": [
     "nodebots",
     "robotics",
@@ -53,10 +53,10 @@
   ],
   "license": "MIT",
   "main": "dist/index.js",
-  "name": "raspi-i2c",
+  "name": "raspi-pca9685-pwm",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nebrius/raspi-i2c.git"
+    "url": "git+https://github.com/kchinzei/raspi-pca9685-pwm.git"
   },
   "types": "./declarations/index.d.ts",
 }
