@@ -35,11 +35,11 @@ import { init } from 'raspi';
 import { IPCA9685PWMConfig, PCA9685PWM } from 'raspi-pca9685-pwm';
 
 init(() => {
-	// Use channel 0 on board 0, with 2kHz PWM frequency.
+    // Use channel 0 on board 0, with 2kHz PWM frequency.
     let config: IPCA9685PWMConfig = { port: 0, frequency: 2000};
     const pwm = new PCA9685PWM(config);
 
-	pwm.write(0.5); // 50% duty cycle.
+    pwm.write(0.5); // 50% duty cycle.
  });
 ```
 
@@ -47,15 +47,16 @@ init(() => {
 ## API
 
 ### Module Constants
-**publicConst** defines convenient parameters.  
-  **maxChannelsPerBoard** Number of channels in a PCA9685, 16.  
-  **maxBoards** Number of boards that can cascade to I2C bus, 62.  
-  **stepsPerCycle** Steps of PWM. PCA9685 has 12-bit PWM. 4096.  
-  **defaultFrequency** Used internally as constructor's default.
+- **publicConst** defines convenient parameters.
+- **maxChannelsPerBoard** Number of channels in a PCA9685, 16.
+- **maxBoards** Number of boards that can cascade to I2C bus, 62.
+- **stepsPerCycle** Steps of PWM. PCA9685 has 12-bit PWM. 4096.
+- **defaultFrequency** Used internally as constructor's default.
 
 ### Interface and Class
-**IPCA9685PWMConfig** is passed to the constructor of PCA9685PWM.
-**Port** is calculated by `(board #)*maxChannelsPerBoard + (channel #)`.
+**IPCA9685PWMConfig** is passed to the constructor of PCA9685PWM.__
+**Port** is calculated by `( board# ) * maxChannelsPerBoard + ( channel# )`.
+Both start from zero.
 **Frequency** is in Hz. When omitted, defaultFrequency is used.
 ```TypeScript
 interface IPCA9685PWMConfig {
@@ -66,12 +67,12 @@ interface IPCA9685PWMConfig {
 **PCA9685PWM** is a PWM channel on a PCA9685 board.
 ```TypeScript
 class PCA9685PWM {
-	dutyCycle: number;  // 0.0 - 1.0
+    dutyCycle: number;  // 0.0 - 1.0
     readonly ch: number;
     readonly board: number;
     readonly frequency: number; // in Hz
 
-	write(dutyCycle: number): void;  // Activate PWM by dutyCycle [0,1].
+    write(dutyCycle: number): void;  // Activate PWM by dutyCycle [0,1].
     read(): number;  // Obtain current PWM of this channel by actually
     reading the register state.
     on(): void;  // Turn on this channel.
@@ -80,13 +81,14 @@ class PCA9685PWM {
 }
 ```
 ### new PCA9685PWM(config: number | string | object)
-Instantiates a new PWM channel on a PCA9685 board. When first channel
+
+Instantiates a new PWM channel on a PCA9685 board. When the first channel
 is made, you may want to provide the PWM frequency by using
-**IPCA9685PWMConfig** object. This set the PWM frequency of the
+**IPCA9685PWMConfig** object. This sets the PWM frequency of the
 board. Since the frequency is set per board, when instantiating the
-rest of channels, you can provide the port number instead of
+rest of channels you can provide the port number only instead of
 IPCA9685PWMConfig. Port number is calculated by 
-`(board #)*maxChannelsPerBoard + (channel #)`.
+`( board# ) * maxChannelsPerBoard + ( channel# )`.
 
 Currently, once you instantiate a new PWM channel, you can't change
 its PWM frequency. It's not a hardware restriction and you can easily
@@ -95,16 +97,16 @@ modify the code to allow it.
 ---
 ## Software PWM vs. Hardware PWM
 
-You can get PWM outputs using
+You can use 
 [raspi-soft-pwm](https://github.com/nebrius/raspi-soft-pwm) without
-extra cost for a hardware PWM board. But you may consider hardware PWM
+extra cost for a hardware PWM board. But you may consider using hardware PWM
 in the following occasions required;
 - Gitter-free output,
 - Linearity at low PWM output,
 - Many outputs,
 - Less burden to CPU.
 
-You can determine if you need hardware PWM or software PWM is
+You can determine if you need hardware PWM, or software PWM is
 sufficient for your purpose, by prototyping using
 [raspi-soft-pwm](https://github.com/nebrius/raspi-soft-pwm).
 A prototype code may look like this (the sample code modified from
