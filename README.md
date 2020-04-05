@@ -125,7 +125,7 @@ To modify it to use the hardware PWM, you modify two lines with '!!'.
 
 ### Caution
 
-However, there is a difference in behavior of the PWM output.
+There is a difference in behavior of the PWM output.
 [raspi-soft-pwm](https://github.com/nebrius/raspi-soft-pwm)
 uses C library of [pigpio](http://abyz.me.uk/rpi/pigpio/cif.html). Due
 to this implementation, when the process terminates, PWM outputs turn
