@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) Tiago Alves <tralves@gmail.com> and Bryan Hughes <bryan@nebri.us>
+Copyright (c) Kiyo Chinzei (kchinzei@gmail.com)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -23,13 +23,13 @@ THE SOFTWARE.
 */
 
 /*
-   Raspi-PCA9685 - Provides access to PCA9685 via I2C on the Raspberry Pi from Node.js
+   Raspi-PCA9685-pwm - Hardware PWM by PCA9685 via I2C on the Raspberry Pi.
 
    Make Asayake to Wake Project.
    Kiyo Chinzei
-   https://github.com/asayake-led/raspi-pca9685
+   https://github.com/asayake-led/raspi-pca9685-pwm
 
-   raspi-pca9685 is built upon raspi-i2c, submodule of Raspi.js
+   Raspi-pca9685-pwm is built upon raspi-i2c, submodule of Raspi.js
       https://www.npmjs.com/package/raspi
    I also looked at pca9685 module in npm.
       https://www.npmjs.com/package/pca9685
@@ -39,61 +39,74 @@ THE SOFTWARE.
    But the API is modified to be consistent to raspi-soft-pwm.
       https://github.com/nebrius/raspi-soft-pwm
 
-   Due to this design, it should be minimal to switch between
-   raspi-soft-pwm and raspi-pca9685.
+   Due to this design, you can switch easily between
+   raspi-soft-pwm and raspi-pca9685-pwm.
 */
 
-import { PCA9685Module } from './pca9685module';
-import { Peripheral } from 'raspi-peripheral';
-import { IPeripheral } from 'j5-io-types';
+import { PCA9685Module, publicConst } from './pca9685module';
 
-export interface PCA9685PWMConfig {
+export interface IPCA9685PWMConfig {
     port: number;	//  0 - maxChannelsPerBoard*maxBoards-1
     frequency?: number;
 }
 
-export interface PCA9685PWM extends IPeripheral {
-    readonly dutyCycle: number;
+//export interface IPCA9685PWM extends IPeripheral {
+export interface IPCA9685PWM {
+    dutyCycle: number;
+    readonly ch: number;
+    readonly board: number;
+    readonly frequency: number;
     write(dutyCycle: number): void;
     read(): number;
+    on(): void;
+    off(): void;
+    allOff(): void;
 }
 
-export class PCM9685PWM extends Peripheral implements PCA9685PWM {
-    static _pca9685 PCA9685Module[] = Array(publicConst.maxBoards);
-    private _ch: number;
-    private _board: number;
-    private _dutyCycle: number;
+export class PCA9685PWM implements IPCA9685PWM {
+    private static _pca9685: PCA9685Module[] = new Array(publicConst.maxBoards);
+    private _ch = 0;
+    private _board = 0;
+    private _dutyCycle = 0;
+
+    public get ch() { return this._ch; }
+    public get board() { return this._board; }
+    public get frequency() { return PCA9685PWM._pca9685[this.board].frequency; }
+    public get dutyCycle() { return this._dutyCycle; }
+    public set dutyCycle(dutyCycle: number) { this.write(dutyCycle); }
+
+    public write(dutyCycle: number): void {
+	PCA9685PWM._pca9685[this.board].setDutyCycle(this.ch, dutyCycle);
+    }
     
-    public get frequency() {
-	return this._pca9685[this._board].frequency;
+    public read(): number {
+	return this._dutyCycle = PCA9685PWM._pca9685[this.board].dutyCycle(this.ch);
     }
 
-    public get dutyCycle() {
-	return this._dutyCycle;
+    public on(): void {
+	PCA9685PWM._pca9685[this.board].channelOn(this.ch);
     }
     
-    public set dutyCycle(dutyCycle: number) {
-	this.write(dutyCycle);
+    public off(): void {
+	PCA9685PWM._pca9685[this.board].channelOff(this.ch);
+    }
+    
+    public allOff(): void {
+	PCA9685PWM._pca9685[this.board].channelOff();
     }
 
-    public function write(dutyCycle: number): void {
-	this._pca9685[this._board].dutyCycle(this._ch, dutyCycle);
-    }
-    
-    public function read(): number {
-	return this._pca9685[this._board].dutyCycle(this._ch);
-    }
-    
-    constructor(config: number | string | PCA9685PWMConfig) {
+    constructor(config: number | string | IPCA9685PWMConfig) {
 	let port: number;
-	let frequency = privConst.defaultFrequency;
+	let frequency = publicConst.defaultFrequency;
 	if (typeof config === 'number') {
 	    port = config;
 	} else if (typeof config === 'string') {
 	    port = Number(config);
 	} else if (typeof config === 'object') {
 	    port = config.port;
-	    frequency = config.frequency;
+	    if (typeof config.frequency === 'number') {
+		frequency = config.frequency;
+	    }
 	} else {
 	    throw new Error('Invalid config, must be a number, string, or object');
 	}
@@ -104,8 +117,9 @@ export class PCM9685PWM extends Peripheral implements PCA9685PWM {
 	this._ch = port % publicConst.maxChannelsPerBoard;
 	this._board = Math.floor(port / publicConst.maxChannelsPerBoard);
 
-	if (typeof _i2c[this._board] === 'undefined') {
-	    this._i2c[this._board] = new PCA9685Module(this._board, frequency);
+	if (typeof PCA9685PWM._pca9685[this.board] === 'undefined') {
+	    PCA9685PWM._pca9685[this.board] = new PCA9685Module(this.board, frequency);
 	}
+	this.read();
     }
 }

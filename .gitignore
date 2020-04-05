@@ -70,3 +70,4 @@ typings/
 .env
 .next
 dist/
+declarations/

@@ -1,19 +1,42 @@
 {
   "name": "raspi-pca9685-pwm",
   "version": "0.1.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Provides PWM outputs by PCA9685 via I2C on the Raspberry Pi from Node.js ",
+  "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
-  "keywords": [],
-  "author": "",
+  "jest": {
+      "preset": "ts-jest",
+      "moduleFileExtensions": [
+	  "js",
+	  "ts",
+	  "tsx"
+      ],
+      "transform": {
+	  "^.+\\.(ts|tsx)$": "ts-jest"
+      },
+      "globals": {
+	  "ts-jest": {
+	      "tsConfig": "tsconfig.json"
+	  }
+      },
+      "testMatch": [
+	  "**/test/*.+(ts|tsx|js)"
+      ]
+  },
+  "keywords": [
+    "nodebots",
+    "robotics",
+    "raspberry pi"
+  ],
+  "author": "Kiyo Chinzei",
   "license": "MIT",
   "contributors": [
     {
       "name": "Kiyo Chinzei",
       "email": "kchinzei@gmail.com"
-    },
+    }
   ],
   "bundleDependencies": false,
   "config": {
@@ -32,31 +55,26 @@
     "raspi-peripheral": "^3.0.3"
   },
   "deprecated": false,
-  "description": "Provides PWM outputs by PCA9685 via I2C on the Raspberry Pi from Node.js ",
   "devDependencies": {
-    "@types/raspi-i2c": "^6.2.4",
     "@types/i2c-bus": "^1.0.19",
+    "@types/jest": "^25.2.1",
     "@types/node": "^10.12.12",
     "@types/raspi-board": "^5.2.0",
+    "@types/raspi-i2c": "^6.2.4",
     "@types/raspi-peripheral": "^2.0.0",
+    "jest": "^25.2.7",
+    "ts-jest": "^25.3.1",
     "tslint": "^5.7.0",
-    "typescript": "^3.6.4"
+    "typescript": "^3.8.3"
   },
   "engines": {
     "node": ">= 6.4.0"
   },
   "homepage": "https://github.com/kchinzei/raspi-pca9685-pwm",
-  "keywords": [
-    "nodebots",
-    "robotics",
-    "raspberry pi"
-  ],
-  "license": "MIT",
-  "main": "dist/index.js",
-  "name": "raspi-pca9685-pwm",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kchinzei/raspi-pca9685-pwm.git"
   },
   "types": "./declarations/index.d.ts",
+  "private": true
 }
