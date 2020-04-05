@@ -47,14 +47,14 @@ init(() => {
 ## API
 
 ### Module Constants
-- **publicConst** defines convenient parameters.
+**publicConst** defines convenient parameters.
 - **maxChannelsPerBoard** Number of channels in a PCA9685, 16.
 - **maxBoards** Number of boards that can cascade to I2C bus, 62.
 - **stepsPerCycle** Steps of PWM. PCA9685 has 12-bit PWM. 4096.
 - **defaultFrequency** Used internally as constructor's default.
 
 ### Interface and Class
-**IPCA9685PWMConfig** is passed to the constructor of PCA9685PWM.__
+**IPCA9685PWMConfig** is passed to the constructor of PCA9685PWM.  
 **Port** is calculated by `( board# ) * maxChannelsPerBoard + ( channel# )`.
 Both start from zero.
 **Frequency** is in Hz. When omitted, defaultFrequency is used.
@@ -98,9 +98,9 @@ modify the code to allow it.
 ## Software PWM vs. Hardware PWM
 
 You can use 
-[raspi-soft-pwm](https://github.com/nebrius/raspi-soft-pwm) without
-extra cost for a hardware PWM board. But you may consider using hardware PWM
-in the following occasions required;
+[raspi-soft-pwm](https://github.com/nebrius/raspi-soft-pwm) without paying
+extra cost to buy a hardware PWM board. But you may consider using hardware PWM
+if the following occasions required;
 - Gitter-free output,
 - Linearity at low PWM output,
 - Many outputs,
