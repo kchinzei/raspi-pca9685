@@ -132,15 +132,15 @@ export interface IPCA9685Module {
     channelOn(ch: number): void;
 }
 
-private function checkChannel(val: any) {
+function checkChannel(val: any) {
     if (typeof val !== 'number' || 0 > val || val >= publicConst.maxChannelsPerBoard) {
 	throw new Error(`Invalid channel ${val}, out of [0,${publicConst.maxChannelsPerBoard}).`);
     }
 }
 
-private function checkBoard(val: any) {
+function checkBoard(val: any) {
     if (typeof val !== 'number' || 0 > val || val >= publicConst.maxBoards) {
-	throw new Error(`Invalid board ${board}, out of [0,${publicConst.maxBoards})`);
+	throw new Error(`Invalid board ${val}, out of [0,${publicConst.maxBoards})`);
     }
 }
 
@@ -170,8 +170,8 @@ export class PCA9685Module implements IPCA9685Module {
 	if (dutyCycleNormalized > 1) dutyCycleNormalized = 1;
 
 	const onStep = (privateConst.baseClockHertz / this.frequency) / publicConst.maxChannelsPerBoard * onOffset_Ch[ch];
-	let offStep = onStep + Math.round(dutyCycleNormalized * privateConst.stepsPerCycle) - 1;
-	if (offStep > privateConst.stepsPerCycle) offStep -= privateConst.stepsPerCycle;
+	let offStep = onStep + Math.round(dutyCycleNormalized * publicConst.stepsPerCycle) - 1;
+	if (offStep > publicConst.stepsPerCycle) offStep -= publicConst.stepsPerCycle;
 	
 	PCA9685Module.i2c.writeByteSync(this.address, privateConst.channel0OnStepLowByte  + privateConst.registersPerChannel * ch, onStep & 0xFF);
 	PCA9685Module.i2c.writeByteSync(this.address, privateConst.channel0OnStepHighByte + privateConst.registersPerChannel * ch, (onStep >> 8) & 0x0F);
@@ -187,14 +187,14 @@ export class PCA9685Module implements IPCA9685Module {
 	const offStepL = PCA9685Module.i2c.readByteSync(this.address, privateConst.channel0OffStepLowByte  + privateConst.registersPerChannel * ch);
 	const offStepH = PCA9685Module.i2c.readByteSync(this.address, privateConst.channel0OffStepHighByte + privateConst.registersPerChannel * ch);
 	let steps = ((offStepH & 0x0F) << 8 + (offStepL & 0xFF)) - ((onStepH & 0x0F) << 8 + (onStepL & 0xFF));
-	if (steps < 0) steps += privateConst.stepsPerCycle;
-	return steps / privateConst.stepsPerCycle;
+	if (steps < 0) steps += publicConst.stepsPerCycle;
+	return steps / publicConst.stepsPerCycle;
     }
     
     private setFrequency(frequency: number) {
 	// Following equence is translated from
 	// https://github.com/adafruit/Adafruit_CircuitPython_PCA9685/blob/master/adafruit_pca9685.py
-	let prescale = Math.floor(privateConst.baseClockHertz / privateConst.stepsPerCycle / frequency + 0.5);
+	let prescale = Math.floor(privateConst.baseClockHertz / publicConst.stepsPerCycle / frequency + 0.5);
 	if (prescale < 3) {
 	    throw new Error('Invalid config, must be a number, string, or object.');
 	}
@@ -247,6 +247,7 @@ export class PCA9685Module implements IPCA9685Module {
     constructor(board: number, frequency = publicConst.defaultFrequency) {
 	checkBoard(board);
 	this._address = privateConst.defaultAddress + board;
+	this._frequency = publicConst.defaultFrequency;
 	this.reset();
 	this.frequency = frequency;
     }

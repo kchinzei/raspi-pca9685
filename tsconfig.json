@@ -63,15 +63,12 @@
     /* Advanced Options */
     "forceConsistentCasingInFileNames": true  /* Disallow inconsistently-cased references to the same file. */
   },
-    /* jest */
-    "include": [
-	"**/test/*.ts"
-    ],
-    "exclude": [
-	"test",
-	"build",
-	"node_modules",
-	"typings/globals",
-	"typings/modules"
-    ]
+  "exclude": [
+    "__tests__",
+    "dist",
+    "declarations",
+    "node_modules",
+    "typings/globals",
+    "typings/modules"
+  ]
 }
