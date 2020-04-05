@@ -14,7 +14,7 @@ npm i -D ts-jest @types/jest
 
 ### Running tests
 ```Shell
-npm jest
+npx jest
 ```
 
 ### More info
