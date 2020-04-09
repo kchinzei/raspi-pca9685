@@ -72,11 +72,12 @@ export class PCA9685PWM implements IPCA9685PWM {
     public get ch() { return this._ch; }
     public get board() { return this._board; }
     public get frequency() { return PCA9685PWM._pca9685[this.board].frequency; }
-    public get dutyCycle() { return this._dutyCycle; }
+    public get dutyCycle() { return this._dutyCycle; }	// Can't return correct value for on(), off(), allOff().
     public set dutyCycle(dutyCycle: number) { this.write(dutyCycle); }
 
     public write(dutyCycle: number): void {
 	PCA9685PWM._pca9685[this.board].setDutyCycle(this.ch, dutyCycle);
+	this._dutyCycle = dutyCycle;
     }
     
     public read(): number {
@@ -96,6 +97,8 @@ export class PCA9685PWM implements IPCA9685PWM {
     }
 
     constructor(config: number | string | IPCA9685PWMConfig) {
+	// It preserves channel's current PWM status.
+	// If application should init PWM before use, it's your task.
 	let port: number;
 	let frequency = publicConst.defaultFrequency;
 	if (typeof config === 'number') {
@@ -108,11 +111,12 @@ export class PCA9685PWM implements IPCA9685PWM {
 		frequency = config.frequency;
 	    }
 	} else {
-	    throw new Error('Invalid config, must be a number, string, or object');
+	    /* istanbul ignore next */
+	    throw new TypeError('Invalid config, must be a number, string, or object');
 	}
 
 	if (port < 0 || port >= publicConst.maxChannelsPerBoard*publicConst.maxBoards) {
-	    throw new Error('Invalid port number in config');
+	    throw new RangeError(`Invalid port number ${port}, out of [0,${publicConst.maxChannelsPerBoard*publicConst.maxBoards}).`);
 	}
 	this._ch = port % publicConst.maxChannelsPerBoard;
 	this._board = Math.floor(port / publicConst.maxChannelsPerBoard);
@@ -121,5 +125,10 @@ export class PCA9685PWM implements IPCA9685PWM {
 	    PCA9685PWM._pca9685[this.board] = new PCA9685Module(this.board, frequency);
 	}
 	this.read();
+    }
+
+    /* istanbul ignore next */
+    public destroy() {
+	// It does not destroy I2C communication.
     }
 }

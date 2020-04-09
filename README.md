@@ -6,6 +6,7 @@ Raspi PCA9685 PWM is built upon
 [Raspi i2c](https://github.com/nebrius/raspi-i2c) to
 provide PWM outputs by controling PCA9685 via I2C connection.
 It's intended to work on PCA9685 boards such as
+
 from [Adafruit](https://www.adafruit.com/product/815).
 Technical information can be found [here](https://learn.adafruit.com/16-channel-pwm-servo-driver).
 
@@ -73,8 +74,10 @@ class PCA9685PWM {
     readonly frequency: number; // in Hz
 
     write(dutyCycle: number): void;  // Activate PWM by dutyCycle [0,1].
-    read(): number;  // Obtain current PWM of this channel by actually
-    reading the register state.
+    read(): number;  // Obtain current PWM of this channel
+    // by actually reading the register state.
+    // In contrast, this.dutyCycle does not read register state.
+	// By this, it does not return correct value after on(), off(), allOff().
     on(): void;  // Turn on this channel.
     off(): void;  // Turn of this channel.
     allOff(): void;  // Turn off all channels on the board.
@@ -117,7 +120,7 @@ import { init } from 'raspi';
 import { SoftPWM } from 'raspi-soft-pwm'; // !!
 
 init(() => {
-  const pwm = new SoftPWM('GPIO22'); // !!
+    const pwm = new SoftPWM('GPIO22'); // !!
     pwm.write(0.5); // 50% Duty Cycle.
 });
 ```
