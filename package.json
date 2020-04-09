@@ -1,6 +1,6 @@
 {
   "name": "raspi-pca9685-pwm",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Hardware PWM by PCA9685 via I2C on the Raspberry Pi",
   "main": "dist/index.js",
   "scripts": {
@@ -9,7 +9,6 @@
   "keywords": [
     "nodebots",
     "LED",
-    "robotics",
     "raspberry pi"
   ],
   "author": "Kiyo Chinzei",
@@ -30,9 +29,6 @@
   ],
   "dependencies": {
     "raspi-i2c": "^6.2.4",
-    "i2c-bus": "^5.1.0",
-    "ini-builder": "^1.1.1",
-    "j5-io-types": "^2.5.0",
     "raspi-board": "^7.1.0",
     "raspi-peripheral": "^3.0.3"
   },

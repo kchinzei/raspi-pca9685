@@ -57,8 +57,6 @@ THE SOFTWARE.
 const privateConst = {
     modeRegister1: 0x00,	// MODE1
     modeRegister1Default: 0x01,
-    sleepBit: 0x10,
-    restartBit: 0x80,
     modeRegister2: 0x01,	// MODE2
     modeRegister2Default: 0x04,
     channel0OnStepLowByte: 0x06, // LED0_ON_L
@@ -72,6 +70,7 @@ const privateConst = {
     allChannelsOffStepHighByte: 0xFD, // ALL_LED_OFF_H
     channelFullOnOrOff: 0x10,	// must be sent to the off step high byte
     preScaleRegister: 0xFE,		// PRE_SCALE
+    sleepBit: 0x10,
     autoIncrementOn: 0xA1,
     defaultAddress: 0x40,
     baseClockHertz: 25000000,
@@ -144,6 +143,20 @@ function checkBoard(val: any) {
     }
 }
 
+function checkFrequency(val: any): number {
+    if (typeof val !== 'number' || val <= 0) {
+	throw new Error(`Invalid frequency ${val}: should be a non-zero, positive number.`);
+    }
+    const prescale = Math.floor(privateConst.baseClockHertz / publicConst.stepsPerCycle / val + 0.5);
+    if (prescale < 3) {
+	throw new RangeError('Invalid frequency ${val}: exceed h/w limit.');
+    }
+    if (prescale > 0xff) {
+	throw new RangeError('Invalid frequency ${val}: too low.');
+    }
+    return prescale;
+}
+
 /*
   class PCA9685Module takes care of a PCA9685 board, including.
   - Initializing the baord. 
@@ -153,7 +166,7 @@ function checkBoard(val: any) {
 */
 
 export class PCA9685Module implements IPCA9685Module {
-    private static  i2c: I2C = new I2C();
+    private static i2c: I2C = new I2C();
     private _frequency: number;
     private _address: number;
 
@@ -165,12 +178,21 @@ export class PCA9685Module implements IPCA9685Module {
     }
 
     public setDutyCycle(ch: number, dutyCycleNormalized: number): void {
-	checkChannel(ch);
 	if (dutyCycleNormalized < 0) dutyCycleNormalized = 0;
 	if (dutyCycleNormalized > 1) dutyCycleNormalized = 1;
 
-	const onStep = (privateConst.baseClockHertz / this.frequency) / publicConst.maxChannelsPerBoard * onOffset_Ch[ch];
-	let offStep = onStep + Math.round(dutyCycleNormalized * publicConst.stepsPerCycle) - 1;
+	this.setDutyCycleUInt(ch, dutyCycleNormalized*publicConst.stepsPerCycle);
+    }
+    
+    public setDutyCycleUInt(ch: number, dutyCycleUInt: number): void {
+	checkChannel(ch);
+
+	dutyCycleUInt = Math.round(dutyCycleUInt);
+	if (dutyCycleUInt < 0) dutyCycleUInt = 0;
+	if (dutyCycleUInt >= publicConst.stepsPerCycle) dutyCycleUInt = publicConst.stepsPerCycle - 1;
+
+	const onStep = Math.round((privateConst.baseClockHertz / this.frequency) / publicConst.maxChannelsPerBoard * onOffset_Ch[ch]);
+	let offStep = onStep + dutyCycleUInt;
 	if (offStep > publicConst.stepsPerCycle) offStep -= publicConst.stepsPerCycle;
 	
 	PCA9685Module.i2c.writeByteSync(this.address, privateConst.channel0OnStepLowByte  + privateConst.registersPerChannel * ch, onStep & 0xFF);
@@ -179,26 +201,38 @@ export class PCA9685Module implements IPCA9685Module {
 	PCA9685Module.i2c.writeByteSync(this.address, privateConst.channel0OffStepHighByte + privateConst.registersPerChannel * ch, (offStep >> 8) & 0x0F);
     }
 
-    public dutyCycle(ch: number): number {
+    public dutyCycleUInt(ch: number): number {
 	checkChannel(ch);
 
 	const onStepL  = PCA9685Module.i2c.readByteSync(this.address, privateConst.channel0OnStepLowByte  + privateConst.registersPerChannel * ch);
 	const onStepH  = PCA9685Module.i2c.readByteSync(this.address, privateConst.channel0OnStepHighByte + privateConst.registersPerChannel * ch);
 	const offStepL = PCA9685Module.i2c.readByteSync(this.address, privateConst.channel0OffStepLowByte  + privateConst.registersPerChannel * ch);
 	const offStepH = PCA9685Module.i2c.readByteSync(this.address, privateConst.channel0OffStepHighByte + privateConst.registersPerChannel * ch);
-	let steps = ((offStepH & 0x0F) << 8 + (offStepL & 0xFF)) - ((onStepH & 0x0F) << 8 + (onStepL & 0xFF));
+
+	if (offStepH & privateConst.channelFullOnOrOff) {
+	    return 0;
+	}
+	if (onStepH & privateConst.channelFullOnOrOff) {
+	    return (privateConst.channelFullOnOrOff << 8);
+	}
+	
+	let steps = (((offStepH & 0x0F) << 8) + (offStepL & 0xFF)) - (((onStepH & 0x0F) << 8) + (onStepL & 0xFF));
 	if (steps < 0) steps += publicConst.stepsPerCycle;
+
+	return steps;
+    }
+    
+    public dutyCycle(ch: number): number {
+	const steps = this.dutyCycleUInt(ch);
+	if (steps == (privateConst.channelFullOnOrOff << 8)) return 1;
 	return steps / publicConst.stepsPerCycle;
     }
     
     private setFrequency(frequency: number) {
-	// Following equence is translated from
+	// Following sequence is translated from
 	// https://github.com/adafruit/Adafruit_CircuitPython_PCA9685/blob/master/adafruit_pca9685.py
-	let prescale = Math.floor(privateConst.baseClockHertz / publicConst.stepsPerCycle / frequency + 0.5);
-	if (prescale < 3) {
-	    throw new Error('Invalid config, must be a number, string, or object.');
-	}
-	
+	const prescale = checkFrequency(frequency);
+
 	// JS/TS doesn't have sleep().
 	// https://qiita.com/asa-taka/items/888bc5a1d7f30ee7eda2
 	const sleep = (msec: number) => new Promise(resolve => setTimeout(resolve, msec));
@@ -206,22 +240,27 @@ export class PCA9685Module implements IPCA9685Module {
 	    let mode1: number;
 	    let sleepMode: number;
 	    mode1 = PCA9685Module.i2c.readByteSync(this.address, privateConst.modeRegister1)
-	    sleepMode = (mode1 & 0x7F) | privateConst.sleepBit  // wake up (reset sleep)
-	    PCA9685Module.i2c.writeByteSync(this.address, privateConst.preScaleRegister, sleepMode);
-	    PCA9685Module.i2c.writeByteSync(this.address, privateConst.modeRegister1, mode1);
+	    sleepMode = (mode1 & 0x7F) | privateConst.sleepBit  // Sleepy
+	    PCA9685Module.i2c.writeByteSync(this.address, privateConst.modeRegister1, sleepMode);
+	    PCA9685Module.i2c.writeByteSync(this.address, privateConst.preScaleRegister, prescale);
+	    PCA9685Module.i2c.writeByteSync(this.address, privateConst.modeRegister1, mode1);	// Wakeup
 	    await sleep(5);	// wait for oscillator
+	    /* istanbul ignore next */
 	    mode1 = mode1 | privateConst.autoIncrementOn;
+	    /* istanbul ignore next */
 	    PCA9685Module.i2c.writeByteSync(this.address, privateConst.modeRegister1, mode1);
 	})();
     }
     
     public reset() {
-	const sleep = (msec: number) => new Promise(resolve => setTimeout(resolve, msec));
-	(async () => {
-	    PCA9685Module.i2c.writeByteSync(this._address, privateConst.modeRegister2, privateConst.modeRegister2Default);
-	    PCA9685Module.i2c.writeByteSync(this._address, privateConst.modeRegister1, privateConst.modeRegister1Default);
-	    await sleep(5);
-	})();
+	try {
+	    // This is usually the first point an access to this.address occurs. May fail due to wrong address.
+	    PCA9685Module.i2c.writeByteSync(this.address, privateConst.modeRegister2, privateConst.modeRegister2Default);
+	    PCA9685Module.i2c.writeByteSync(this.address, privateConst.modeRegister1, privateConst.modeRegister1Default);
+	}
+	catch (e) {
+	    throw new Error(`Reset failed as ${e}. Does h/w exists for address ${this.address}?`);
+	}
     }
     
     public channelOff(ch?: number) {
@@ -240,15 +279,33 @@ export class PCA9685Module implements IPCA9685Module {
 	let register = 0;
 	
 	checkChannel(ch);
+
+	// We must clear channelOff bit before turn on.
+	register = privateConst.channel0OffStepHighByte + privateConst.registersPerChannel * ch;
+	let tmpval =  PCA9685Module.i2c.readByteSync(this.address, register);
+	tmpval &= (0xff ^ privateConst.channelFullOnOrOff);	// Force this bit only to 0.
+	PCA9685Module.i2c.writeByteSync(this.address, register, tmpval);
+
+	// Turn on ours.
 	register = privateConst.channel0OnStepHighByte + privateConst.registersPerChannel * ch;
 	PCA9685Module.i2c.writeByteSync(this.address, register, privateConst.channelFullOnOrOff);
     }
     
     constructor(board: number, frequency = publicConst.defaultFrequency) {
+	// It does not change state of the board other than reset().
+	// If application should init PWM before use, it's your task.
 	checkBoard(board);
+	checkFrequency(frequency);
 	this._address = privateConst.defaultAddress + board;
 	this._frequency = publicConst.defaultFrequency;
 	this.reset();
 	this.frequency = frequency;
+    }
+
+    /* istanbul ignore next */
+    public destroy() {
+	// It does not change state of the board.
+	// If application should turn off PWM before destroy, it's your task.
+	PCA9685Module.i2c.destroy();
     }
 }
