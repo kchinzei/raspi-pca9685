@@ -136,9 +136,8 @@ off. In contrast, the outputs of PCA9685 persist unless a reset is sent.
 
 ### Known bugs
 
-- read() is not working.
-- Testing by [jest](https://jestjs.io) is not fully implemented.
-
+Should never be, again...
+(To be collected...)
 
 ## Credits
 	
