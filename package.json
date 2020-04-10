@@ -29,20 +29,20 @@
   ],
   "dependencies": {
     "raspi-i2c": "^6.2.4",
-    "raspi-board": "^7.1.0",
-    "raspi-peripheral": "^3.0.3"
+    "raspi-board": "^7.3.1",
+    "raspi-peripheral": "^3.0.4"
   },
   "deprecated": false,
   "devDependencies": {
-    "@types/i2c-bus": "^1.0.19",
+    "@types/i2c-bus": "^5.1.0",
     "@types/jest": "^25.2.1",
-    "@types/node": "^10.12.12",
+    "@types/node": "^13.11.1",
     "@types/raspi-board": "^5.2.0",
     "@types/raspi-i2c": "^6.2.4",
     "@types/raspi-peripheral": "^2.0.0",
-    "jest": "^25.2.7",
+    "jest": "^25.3.0",
     "ts-jest": "^25.3.1",
-    "tslint": "^5.7.0",
+    "tslint": "^6.1.1",
     "typescript": "^3.8.3"
   },
   "engines": {
