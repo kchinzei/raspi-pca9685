@@ -53,5 +53,5 @@
     "type": "git",
     "url": "git+https://github.com/kchinzei/raspi-pca9685-pwm.git"
   },
-  "types": "./declarations/index.d.ts",
+  "types": "./declarations/index.d.ts"
 }
