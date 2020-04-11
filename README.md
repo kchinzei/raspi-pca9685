@@ -126,7 +126,7 @@ init(() => {
 To modify it to use the hardware PWM, you modify two lines with '!!'.
 
 
-### Caution adn limitation
+### Caution and limitation
 
 There is a difference in behavior of the PWM output.
 [raspi-soft-pwm](https://github.com/nebrius/raspi-soft-pwm)
