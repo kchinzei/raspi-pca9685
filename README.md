@@ -5,9 +5,7 @@ Hardware PWM by PCA9685.
 Raspi PCA9685 PWM is built upon
 [Raspi i2c](https://github.com/nebrius/raspi-i2c) to
 provide PWM outputs by controling PCA9685 via I2C connection.
-It's intended to work on PCA9685 boards such as
-
-from [Adafruit](https://www.adafruit.com/product/815).
+It's intended to work on PCA9685 boards such asfrom [Adafruit](https://www.adafruit.com/product/815).
 Technical information can be found [here](https://learn.adafruit.com/16-channel-pwm-servo-driver).
 
 
@@ -15,6 +13,7 @@ Technical information can be found [here](https://learn.adafruit.com/16-channel-
 
 - Raspberry Pi Model B Rev 3 or newer (Not tested on older pi's) or Pi
   Zero.
+- At least one PCA9685 board.
 - [Raspi i2c 6.2.4](https://github.com/nebrius/raspi-i2c) or newer.
 - Node 13.9.0 or newer (perhaps works with as old as v. 6, but not tested)
 
@@ -44,7 +43,7 @@ init(() => {
  });
 ```
 
----
+
 ## API
 
 ### Module Constants
@@ -97,7 +96,7 @@ Currently, once you instantiate a new PWM channel, you can't change
 its PWM frequency. It's not a hardware restriction and you can easily
 modify the code to allow it.
 
----
+
 ## Software PWM vs. Hardware PWM
 
 You can use 
@@ -126,7 +125,8 @@ init(() => {
 ```
 To modify it to use the hardware PWM, you modify two lines with '!!'.
 
-### Caution
+
+### Caution adn limitation
 
 There is a difference in behavior of the PWM output.
 [raspi-soft-pwm](https://github.com/nebrius/raspi-soft-pwm)
@@ -134,18 +134,28 @@ uses C library of [pigpio](http://abyz.me.uk/rpi/pigpio/cif.html). Due
 to this implementation, when the process terminates, PWM outputs turn
 off. In contrast, the outputs of PCA9685 persist unless a reset is sent.
 
+This module cannot detect how many PCA9685 boards are installed. 
+If you attempt to access a port not physically existing, an exception will
+be thrown.
+
+I tested it using one PCA9685 board.
+
+
 ### Known bugs
 
 Should never be, again...
 (To be collected...)
 
+
 ## Credits
 	
-Code started from modifying
+- APIs are referenced
 [raspi-soft-pwm](https://github.com/nebrius/raspi-soft-pwm) by nebrius.
+- PCA9685 access by reading [pca9685 module](https://www.npmjs.com/package/pca9685) by Jason Heard,
+[Adafruit_CircuitPython_PCA9685](https://github.com/adafruit/Adafruit_CircuitPython_PCA9685), 
+and the data sheet of [PCA9685](https://www.nxp.com/products/power-management/lighting-driver-and-controller-ics/ic-led-controllers/16-channel-12-bit-pwm-fm-plus-ic-bus-led-controller:PCA9685).
 
-learned PCA9685 access by reading [pca9685 module](https://www.npmjs.com/package/pca9685) by Jason Heard.
-	
+
 License
 =======
 	
@@ -170,4 +180,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-	
