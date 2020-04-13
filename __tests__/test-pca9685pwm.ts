@@ -33,7 +33,10 @@ THE SOFTWARE.
 const numberOfInstalledBoard = 1;
 
 import { init } from 'raspi';
-import { IPCA9685PWMConfig, PCA9685PWM, publicConst } from '../src/index';
+import { IPWMConfig } from 'raspi-soft-pwm';
+import { PCA9685PWM, publicConst } from '../src/index';
+import { module } from '../src/index';
+import { SoftPWM } from 'raspi-soft-pwm';
 
 function test_pwm(port: number, freq:number, val:number): void {
     var pwm: PCA9685PWM;
@@ -51,8 +54,20 @@ function test_pwm(port: number, freq:number, val:number): void {
 	}).toThrow();
     });
 
-    test(`${i++}. Instantiation of PWM object: IPCA9685PWMConfig should be accepted.`, () => {
-	let config: IPCA9685PWMConfig = { port: port, frequency: freq };
+    test(`${i++}. Instantiation of PWM object: illegal port(string)) should fail`, () => {
+	expect(() => {
+	    pwm = new PCA9685PWM('GPIO22');
+	}).toThrow();
+    });
+    
+    test(`${i++}. Instantiation of PWM object: IPWMConfig (pin:number) should be accepted.`, () => {
+	let config: IPWMConfig = { pin: port, frequency: freq };
+	pwm = new PCA9685PWM(config);
+	expect(pwm).toBeDefined();
+    });
+
+    test(`${i++}. Instantiation of PWM object: IPWMConfig (pin:string) should be accepted.`, () => {
+	let config: IPWMConfig = { pin: String(port), frequency: freq };
 	pwm = new PCA9685PWM(config);
 	expect(pwm).toBeDefined();
     });
@@ -68,8 +83,13 @@ function test_pwm(port: number, freq:number, val:number): void {
 	expect(pwm).toBeDefined();
     });
     
-    test(`${i++}. Instantiation of PWM object: omitting frequency in IPCA9685PWMConfig should be accepted.`, () => {
-	let config: IPCA9685PWMConfig = { port: port };
+    test(`${i++}. Instantiation of PWM object: port as number should be accepted.`, () => {
+	pwm = new PCA9685PWM(0);
+	expect(pwm).toBeDefined();
+    });
+    
+    test(`${i++}. Instantiation of PWM object: omitting frequency in IPWMConfig should be accepted.`, () => {
+	let config: IPWMConfig = { pin: port };
 	pwm = new PCA9685PWM(config);
 	expect(pwm).toBeDefined();
     });
@@ -81,37 +101,43 @@ function test_pwm(port: number, freq:number, val:number): void {
     });
 
 
-
-
     test(`${i++}. Member functions: PWM read value should agree to PWM write value.`, () => {
 	pwm.write(val);
-	expect(pwm.read()).toBeCloseTo(val);
-    });
-
-    test(`${i++}. Member functions: PWM read value should agree to value=${val} set by dutyCycle().`, () => {
-	pwm.dutyCycle = val;
-	expect(pwm.read()).toBeCloseTo(val);
-    });
-    
-    test(`${i++}. Member functions: instant get dutyCycle() should agree to value=${val}.`, () => {
 	expect(pwm.dutyCycle).toBeCloseTo(val);
     });
 
-    test(`${i++}. Member functions: After off(), dutyCycle is incorrectly remain unchanged.`, () => {
+    test(`${i++}. Member functions: After off(), dutyCycle to be 0.`, () => {
 	pwm.off();
-	expect(pwm.dutyCycle).toBeCloseTo(val);
+	expect(pwm.dutyCycle).toBe(0);
     });
 
-    test(`${i++}. Member functions: After on(), dutyCycle is incorrectly remain unchanged.`, () => {
+    test(`${i++}. Member functions: After on(), dutyCycle to be 1.`, () => {
 	pwm.on();
-	expect(pwm.dutyCycle).toBeCloseTo(val);
+	expect(pwm.dutyCycle).toBeCloseTo(1);
     });
 
-    test(`${i++}. Member functions: After alloff(), dutyCycle is incorrectly remain unchanged.`, () => {
+    test(`${i++}. Member functions: After alloff(), dutyCycle to be 0.`, () => {
 	pwm.allOff();
-	expect(pwm.dutyCycle).toBeCloseTo(val);
+	expect(pwm.dutyCycle).toBeCloseTo(0);
     });
 
+
+
+    test(`${i++}. Factory: Successfully produce SoftPWM`, () => {
+	expect(() => {
+	    let pwm: SoftPWM | PCA9685PWM;
+            pwm = module.createPWM('GPIO22');
+	    pwm.write(0.5);
+	}).not.toThrow();
+    });
+
+    test(`${i++}. Factory: Successfully produce PCA9685PWM`, () => {
+	expect(() => {
+	    let pwm: SoftPWM | PCA9685PWM;
+            pwm = module.createPWM(2);
+	    pwm.write(0.5);
+	}).not.toThrow();
+    });
 }
 
 function main() {

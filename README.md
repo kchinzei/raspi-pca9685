@@ -14,7 +14,8 @@ Technical information can be found [here](https://learn.adafruit.com/16-channel-
 - Raspberry Pi Model B Rev 3 or newer (Not tested on older pi's) or Pi
   Zero.
 - At least one PCA9685 board.
-- [Raspi i2c 6.2.4](https://github.com/nebrius/raspi-i2c) or newer.
+- [raspi-i2c 6.2.4](https://github.com/nebrius/raspi-i2c) or newer.
+- [raspi-soft-pwm 6.0.2](https://github.com/nebrius/raspi-soft-pwm) or newer.
 - Node 13.9.0 or newer (perhaps works with as old as v. 6, but not tested)
 
 
@@ -32,38 +33,52 @@ In TypeScript/ES2019:
 
 ```TypeScript
 import { init } from 'raspi';
-import { IPCA9685PWMConfig, PCA9685PWM } from 'raspi-pca9685-pwm';
+import { PCA9685PWM } from 'raspi-pca9685-pwm';
+import { IPWMConfig } from 'raspi-soft-pwm';
 
 init(() => {
     // Use channel 0 on board 0, with 2kHz PWM frequency.
-    let config: IPCA9685PWMConfig = { port: 0, frequency: 2000};
+    let config: IPWMConfig = { pin: 0, frequency: 2000};
     const pwm = new PCA9685PWM(config);
 
     pwm.write(0.5); // 50% duty cycle.
  });
 ```
 
+import { PCA9685PWM, publicConst } from '../src/index';
+import { module } from '../src/index';
+import { SoftPWM } from 'raspi-soft-pwm';
 
 ## API
 
 ### Module Constants
-**publicConst** defines convenient parameters.
-- **maxChannelsPerBoard** Number of channels in a PCA9685, 16.
-- **maxBoards** Number of boards that can cascade to I2C bus, 62.
-- **stepsPerCycle** Steps of PWM. PCA9685 has 12-bit PWM. 4096.
-- **defaultFrequency** Used internally as constructor's default.
-
-### Interface and Class
-**IPCA9685PWMConfig** is passed to the constructor of PCA9685PWM.  
-**Port** is calculated by `( board# ) * maxChannelsPerBoard + ( channel# )`.
-Both start from zero.
-**Frequency** is in Hz. When omitted, defaultFrequency is used.
+`publicConst` defines convenient parameters.
 ```TypeScript
-interface IPCA9685PWMConfig {
-    port: number;	//  0 - maxChannelsPerBoard*maxBoards-1
-    frequency?: number;  // in Hz.
+export const publicConst = {
+    maxChannelsPerBoard: 16,   // Number of channels in a PCA9685.
+    maxBoards: 62,      // Number of boards that can cascade to I2C bus.
+    stepsPerCycle: 4096,    // PCA9685 has 12-bit PWM.
+    defaultFrequency: 200,  // Used internally as constructor's default
 }
 ```
+
+### Interface and Class
+This module can use `IPWMConfig` for fake-polymorphism purpose to
+construct a `PCA9685PWM` object. It uses members differently from
+[raspi-soft-pwm](https://github.com/nebrius/raspi-soft-pwm).
+`pin` is used to specify the board address and a PWM channel. `pin` is
+calculated by `( board# ) * maxChannelsPerBoard + ( channel# )`.
+Both start from zero. `pin` can be in string, such as `'1'`.  
+`frequency` is in Hz. When omitted, defaultFrequency is used.  
+`range` is not used, because PCA9685 has 12-bit (fixed) PWM.
+```TypeScript
+interface IPCA9685PWMConfig {
+    pin: number | string; //  0 - maxChannelsPerBoard*maxBoards-1
+	frequency?: number;   // in Hz.
+	range?: number;       // Not used.
+}
+```
+
 **PCA9685PWM** is a PWM channel on a PCA9685 board.
 ```TypeScript
 class PCA9685PWM {
@@ -73,10 +88,6 @@ class PCA9685PWM {
     readonly frequency: number; // in Hz
 
     write(dutyCycle: number): void;  // Activate PWM by dutyCycle [0,1].
-    read(): number;  // Obtain current PWM of this channel
-    // by actually reading the register state.
-    // In contrast, this.dutyCycle does not read register state.
-	// By this, it does not return correct value after on(), off(), allOff().
     on(): void;  // Turn on this channel.
     off(): void;  // Turn of this channel.
     allOff(): void;  // Turn off all channels on the board.
@@ -86,11 +97,10 @@ class PCA9685PWM {
 
 Instantiates a new PWM channel on a PCA9685 board. When the first channel
 is made, you may want to provide the PWM frequency by using
-**IPCA9685PWMConfig** object. This sets the PWM frequency of the
+`IPWMConfig` object. This sets the PWM frequency of the
 board. Since the frequency is set per board, when instantiating the
 rest of channels you can provide the port number only instead of
-IPCA9685PWMConfig. Port number is calculated by 
-`( board# ) * maxChannelsPerBoard + ( channel# )`.
+`IPWMConfig`.
 
 Currently, once you instantiate a new PWM channel, you can't change
 its PWM frequency. It's not a hardware restriction and you can easily
@@ -123,22 +133,54 @@ init(() => {
     pwm.write(0.5); // 50% Duty Cycle.
 });
 ```
-To modify it to use the hardware PWM, you modify two lines with '!!'.
+To modify it to use the hardware PWM, you modify two lines with `'!!'`.
+
+### Fake polymorphism
+
+You can also use a 'fake' polymorphism between `SoftPWM` and
+`PCA9685PWM` objects. It's a fake because these objects indeed do not
+share a common base class, but they have a (partially) common interface.
+In javascript you can code as if there is polymorphism.
+There is a convenient object function `module.createPWM()`.
+Using it, you can do like:
+
+```TypeScript
+import { init } from 'raspi';
+import { PCA9685PWM, module } from 'raspi-pca9685-pwm';
+import { SoftPWM, IPWMConfig } from 'raspi-soft-pwm';
+
+init(() => {
+	let pwm0: PCA9685PWM | SoftPWM;
+	let pwm1: PCA9685PWM | SoftPWM;
+	
+	pwm0 = module.createPWM(0);        // returns PCA9685PWM
+	pwm1 = module.createPWM('GPIO22'); // returns SoftPWM
+
+    pwm0.write(0.5);
+    pwm1.write(0.5);
+ });
+```
+
+`createPWM()` takes a parameter same as the constructor of
+`PCA9685PWM` and `SoftPWM`. When a number or a string that can be
+decordable as number is given to `pin`, `createPWM()` instantiates a
+`PCA9685PWM` object. Else, a `SoftPWM` object is returned. All public
+members and methods of `SoftPWM` are available in `PCA9685PWM`.
 
 
 ### Caution and limitation
 
-There is a difference in behavior of the PWM output.
+- There is a difference in behavior of the PWM output of `SoftPWM` and `PCA9685PWM`.
 [raspi-soft-pwm](https://github.com/nebrius/raspi-soft-pwm)
 uses C library of [pigpio](http://abyz.me.uk/rpi/pigpio/cif.html). Due
 to this implementation, when the process terminates, PWM outputs turn
-off. In contrast, the outputs of PCA9685 persist unless a reset is sent.
+off. In contrast, the outputs of PCA9685 persist unless a init is sent.
 
-This module cannot detect how many PCA9685 boards are installed. 
+- This module cannot detect how many PCA9685 boards are installed. 
 If you attempt to access a port not physically existing, an exception will
 be thrown.
 
-I tested it using one PCA9685 board.
+- I tested it using one PCA9685 board.
 
 
 ### Known bugs
@@ -149,7 +191,7 @@ Should never be, again...
 
 ## Credits
 	
-- APIs are referenced
+- APIs are inherited
 [raspi-soft-pwm](https://github.com/nebrius/raspi-soft-pwm) by nebrius.
 - PCA9685 access by reading [pca9685 module](https://www.npmjs.com/package/pca9685) by Jason Heard,
 [Adafruit_CircuitPython_PCA9685](https://github.com/adafruit/Adafruit_CircuitPython_PCA9685), 

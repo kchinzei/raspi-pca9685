@@ -44,82 +44,101 @@ THE SOFTWARE.
 */
 
 import { PCA9685Module, publicConst } from './pca9685module';
+import { SoftPWM } from 'raspi-soft-pwm';
+import { IPWMConfig } from 'raspi-soft-pwm';
 
-export interface IPCA9685PWMConfig {
-    port: number;	//  0 - maxChannelsPerBoard*maxBoards-1
-    frequency?: number;
+export interface IPWMFactory {
+    createPWM: (config: number | string | IPWMConfig) => SoftPWM | PCA9685PWM;
 }
 
-//export interface IPCA9685PWM extends IPeripheral {
 export interface IPCA9685PWM {
-    dutyCycle: number;
     readonly ch: number;
     readonly board: number;
     readonly frequency: number;
+    readonly dutyCycle: number;
     write(dutyCycle: number): void;
-    read(): number;
     on(): void;
     off(): void;
     allOff(): void;
+
+    // For SoftPWM compatibility purpose
+    readonly range: number;
+    readonly pin: number;
+}
+
+function checkPin(config: number | string | IPWMConfig): number | string {
+    // It preserves channel's current PWM status.
+    // If application should init PWM before use, it's your task.
+
+    let pin: number | string;
+    pin = 0;
+    if (typeof config === 'object') {
+	pin = config.pin;
+    } else if (typeof config === 'number' || typeof config === 'string') {
+	pin = config;
+    }
+    return pin;
 }
 
 export class PCA9685PWM implements IPCA9685PWM {
     private static _pca9685: PCA9685Module[] = new Array(publicConst.maxBoards);
     private _ch = 0;
     private _board = 0;
-    private _dutyCycle = 0;
 
     public get ch() { return this._ch; }
     public get board() { return this._board; }
     public get frequency() { return PCA9685PWM._pca9685[this.board].frequency; }
-    public get dutyCycle() { return this._dutyCycle; }	// Can't return correct value for on(), off(), allOff().
-    public set dutyCycle(dutyCycle: number) { this.write(dutyCycle); }
+    public get dutyCycle() { return this.read(); }
+
+    /* For SoftPWM compatibility */
+    /* istanbul ignore next */
+    public get range() { return publicConst.stepsPerCycle; }
+    /* istanbul ignore next */
+    public get pin() { return this.ch + this.board*publicConst.maxChannelsPerBoard; }
 
     public write(dutyCycle: number): void {
 	PCA9685PWM._pca9685[this.board].setDutyCycle(this.ch, dutyCycle);
-	this._dutyCycle = dutyCycle;
     }
     
-    public read(): number {
-	return this._dutyCycle = PCA9685PWM._pca9685[this.board].dutyCycle(this.ch);
+    private read(): number {
+	return PCA9685PWM._pca9685[this.board].dutyCycle(this.ch);
     }
 
     public on(): void {
 	PCA9685PWM._pca9685[this.board].channelOn(this.ch);
     }
-    
+
     public off(): void {
 	PCA9685PWM._pca9685[this.board].channelOff(this.ch);
     }
-    
+
     public allOff(): void {
 	PCA9685PWM._pca9685[this.board].channelOff();
     }
 
-    constructor(config: number | string | IPCA9685PWMConfig) {
-	// It preserves channel's current PWM status.
-	// If application should init PWM before use, it's your task.
-	let port: number;
-	let frequency = publicConst.defaultFrequency;
-	if (typeof config === 'number') {
-	    port = config;
-	} else if (typeof config === 'string') {
-	    port = Number(config);
-	} else if (typeof config === 'object') {
-	    port = config.port;
-	    if (typeof config.frequency === 'number') {
-		frequency = config.frequency;
-	    }
-	} else {
-	    /* istanbul ignore next */
-	    throw new TypeError('Invalid config, must be a number, string, or object');
-	}
+    constructor(config: number | string | IPWMConfig) {
+	let pin: number | string;
+	pin = checkPin(config);
 
+	let port = 0;
+	if (typeof pin === 'number') {
+	    port = pin;
+	} else if (typeof pin === 'string') {
+	    port = Number(pin);
+	    if (isNaN(port)) {
+		throw new RangeError(`Invalid port number '${pin}', not a number string).`);
+	    }
+	}
 	if (port < 0 || port >= publicConst.maxChannelsPerBoard*publicConst.maxBoards) {
 	    throw new RangeError(`Invalid port number ${port}, out of [0,${publicConst.maxChannelsPerBoard*publicConst.maxBoards}).`);
 	}
 	this._ch = port % publicConst.maxChannelsPerBoard;
 	this._board = Math.floor(port / publicConst.maxChannelsPerBoard);
+
+	let frequency = publicConst.defaultFrequency;
+	if (typeof config === 'object' && typeof config.frequency === 'number') {
+	    frequency = config.frequency;
+	}
 
 	if (typeof PCA9685PWM._pca9685[this.board] === 'undefined') {
 	    PCA9685PWM._pca9685[this.board] = new PCA9685Module(this.board, frequency);
@@ -132,3 +151,26 @@ export class PCA9685PWM implements IPCA9685PWM {
 	// It does not destroy I2C communication.
     }
 }
+
+export const module: IPWMFactory = {
+    /*
+      Factory function that return either SoftPWM or PCA9635PWM.
+      if given pin is a non-number string (e.g., 'GPIO22'), SoftPWN.
+      if gicen pin represents a number (e.g., 22 or '022'), PCA9685PWM.
+    */
+    createPWM(config: number | string | IPWMConfig) {
+	let pin: number | string;
+	pin = checkPin(config);
+
+	let port = 0;
+	if (typeof pin === 'number') {
+	    port = pin;
+	} else if (typeof pin === 'string') {
+	    port = Number(pin);
+	    if (isNaN(port)) {
+		return new SoftPWM(config);
+	    }
+	}
+	return new PCA9685PWM(config);
+    }
+};
