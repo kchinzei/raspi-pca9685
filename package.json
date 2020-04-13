@@ -30,7 +30,8 @@
   "dependencies": {
     "raspi-i2c": "^6.2.4",
     "raspi-board": "^7.3.1",
-    "raspi-peripheral": "^3.0.4"
+    "raspi-peripheral": "^3.0.4",
+    "raspi-soft-pwm": "^6.0.2"
   },
   "deprecated": false,
   "devDependencies": {
@@ -40,6 +41,7 @@
     "@types/raspi-board": "^5.2.0",
     "@types/raspi-i2c": "^6.2.4",
     "@types/raspi-peripheral": "^2.0.0",
+    "@types/raspi-soft-pwm": "^6.0.2",
     "jest": "^25.3.0",
     "ts-jest": "^25.3.1",
     "tslint": "^6.1.1",
