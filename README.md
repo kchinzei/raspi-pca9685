@@ -45,10 +45,6 @@ init(() => {
  });
 ```
 
-import { PCA9685PWM, publicConst } from '../src/index';
-import { module } from '../src/index';
-import { SoftPWM } from 'raspi-soft-pwm';
-
 ## API
 
 ### Module Constants
@@ -74,8 +70,8 @@ Both start from zero. `pin` can be in string, such as `'1'`.
 ```TypeScript
 interface IPCA9685PWMConfig {
     pin: number | string; //  0 - maxChannelsPerBoard*maxBoards-1
-	frequency?: number;   // in Hz.
-	range?: number;       // Not used.
+    frequency?: number;   // in Hz.
+    range?: number;       // Not used.
 }
 ```
 
@@ -150,11 +146,11 @@ import { PCA9685PWM, module } from 'raspi-pca9685-pwm';
 import { SoftPWM, IPWMConfig } from 'raspi-soft-pwm';
 
 init(() => {
-	let pwm0: PCA9685PWM | SoftPWM;
-	let pwm1: PCA9685PWM | SoftPWM;
+    let pwm0: PCA9685PWM | SoftPWM;
+    let pwm1: PCA9685PWM | SoftPWM;
 	
-	pwm0 = module.createPWM(0);        // returns PCA9685PWM
-	pwm1 = module.createPWM('GPIO22'); // returns SoftPWM
+    pwm0 = module.createPWM(0);        // returns PCA9685PWM
+    pwm1 = module.createPWM('GPIO22'); // returns SoftPWM
 
     pwm0.write(0.5);
     pwm1.write(0.5);
