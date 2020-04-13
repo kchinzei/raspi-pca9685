@@ -170,7 +170,7 @@ members and methods of `SoftPWM` are available in `PCA9685PWM`.
 [raspi-soft-pwm](https://github.com/nebrius/raspi-soft-pwm)
 uses C library of [pigpio](http://abyz.me.uk/rpi/pigpio/cif.html). Due
 to this implementation, when the process terminates, PWM outputs turn
-off. In contrast, the outputs of PCA9685 persist unless a init is sent.
+off. In contrast, the outputs of PCA9685 persist unless an init is sent.
 
 - This module cannot detect how many PCA9685 boards are installed. 
 If you attempt to access a port not physically existing, an exception will
