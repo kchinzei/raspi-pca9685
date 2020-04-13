@@ -17,7 +17,7 @@ Since thsi test contains crating SoftPWM object from
 [raspi soft pwm](https://github.com/nebrius/raspi-soft-pwm),
 following requirements apply as standard ones for SoftPWM.
 - Run test using `sudo`.
-- If `pigpiod` ruiing, stop it. `sudo systemctl stop pigpiod.service`
+- If `pigpiod` running, stop it, e.g., `sudo systemctl stop pigpiod.service`
 
 ```Shell
 sudo npx jest
