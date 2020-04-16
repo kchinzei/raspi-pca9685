@@ -13,7 +13,7 @@ npm i -D ts-jest @types/jest
 ```
 
 ### Running tests
-Since thsi test contains crating SoftPWM object from 
+Since this test contains crating SoftPWM object from 
 [raspi soft pwm](https://github.com/nebrius/raspi-soft-pwm),
 following requirements apply as standard ones for SoftPWM.
 - Run test using `sudo`.
