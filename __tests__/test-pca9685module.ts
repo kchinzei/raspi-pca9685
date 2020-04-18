@@ -189,7 +189,7 @@ function test_pca9685(ch: number, freq:number, val:number): void {
 }
 
 function main() {
-  const progname: string = process.argv[1];
+  //const progname: string = process.argv[1];
   let ch: number = 1;
   let freq: number = 1000;
   let val: number = 0.2;
