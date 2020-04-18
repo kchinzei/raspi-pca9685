@@ -131,13 +131,13 @@ export interface IPCA9685Module {
   channelOn(ch: number): void;
 }
 
-function checkChannel(val: any) {
+function checkChannel(val: any): void {
   if (typeof val !== 'number' || 0 > val || val >= publicConst.maxChannelsPerBoard) {
     throw new Error(`Invalid channel ${val}, out of [0,${publicConst.maxChannelsPerBoard}).`);
   }
 }
 
-function checkBoard(val: any) {
+function checkBoard(val: any): void {
   if (typeof val !== 'number' || 0 > val || val >= publicConst.maxBoards) {
     throw new Error(`Invalid board ${val}, out of [0,${publicConst.maxBoards})`);
   }
@@ -170,8 +170,8 @@ export class PCA9685Module implements IPCA9685Module {
   private _frequency: number;
   private _address: number;
 
-  public get address() {return this._address; }
-  public get frequency() { return this._frequency; }
+  public get address(): number {return this._address; }
+  public get frequency(): number { return this._frequency; }
   public set frequency(frequency: number) {
     this.setFrequency(frequency);
     this._frequency = frequency;
@@ -228,7 +228,7 @@ export class PCA9685Module implements IPCA9685Module {
     return steps / publicConst.stepsPerCycle;
   }
 
-  private setFrequency(frequency: number) {
+  private setFrequency(frequency: number): void {
     // Following sequence is translated from
     // https://github.com/adafruit/Adafruit_CircuitPython_PCA9685/blob/master/adafruit_pca9685.py
     const prescale = checkFrequency(frequency);
@@ -238,9 +238,8 @@ export class PCA9685Module implements IPCA9685Module {
     const sleep = (msec: number) => new Promise(resolve => setTimeout(resolve, msec));
     (async () => {
       let mode1: number;
-      let sleepMode: number;
       mode1 = PCA9685Module.i2c.readByteSync(this.address, privateConst.modeRegister1);
-      sleepMode = (mode1 & 0x7F) | privateConst.sleepBit;  // Sleepy
+      const sleepMode = (mode1 & 0x7F) | privateConst.sleepBit;  // Sleepy
       PCA9685Module.i2c.writeByteSync(this.address, privateConst.modeRegister1, sleepMode);
       PCA9685Module.i2c.writeByteSync(this.address, privateConst.preScaleRegister, prescale);
       PCA9685Module.i2c.writeByteSync(this.address, privateConst.modeRegister1, mode1);	// Wakeup
@@ -252,7 +251,7 @@ export class PCA9685Module implements IPCA9685Module {
     })();
   }
 
-  public reset() {
+  public reset(): void {
     try {
       // This is the first point an access to this.address occurs. May fail due to wrong address.
       PCA9685Module.i2c.writeByteSync(this.address, privateConst.modeRegister2, privateConst.modeRegister2Default);
@@ -263,7 +262,7 @@ export class PCA9685Module implements IPCA9685Module {
     }
   }
 
-  public channelOff(ch?: number) {
+  public channelOff(ch?: number): void {
     let register = 0;
 
     if (typeof ch === 'number') {
@@ -275,7 +274,7 @@ export class PCA9685Module implements IPCA9685Module {
     PCA9685Module.i2c.writeByteSync(this.address, register, privateConst.channelFullOnOrOff);
   }
 
-  public channelOn(ch: number) {
+  public channelOn(ch: number): void {
     let register = 0;
 
     checkChannel(ch);
@@ -303,7 +302,7 @@ export class PCA9685Module implements IPCA9685Module {
   }
 
   /* istanbul ignore next */
-  public destroy() {
+  public destroy(): void {
     // It does not change state of the board.
     // If application should turn off PWM before destroy, it's your task.
     PCA9685Module.i2c.destroy();

@@ -1,5 +1,4 @@
-Raspi PCA9685 PWM
-=================
+# Raspi PCA9685 PWM
 
 Hardware PWM by PCA9685.
 Raspi PCA9685 PWM is built upon
@@ -7,7 +6,6 @@ Raspi PCA9685 PWM is built upon
 provide PWM outputs by controling PCA9685 via I2C connection.
 It's intended to work on PCA9685 boards such asfrom [Adafruit](https://www.adafruit.com/product/815).
 Technical information can be found [here](https://learn.adafruit.com/16-channel-pwm-servo-driver).
-
 
 ## System Requirements
 
@@ -18,14 +16,13 @@ Technical information can be found [here](https://learn.adafruit.com/16-channel-
 - [raspi-soft-pwm 6.0.2](https://github.com/nebrius/raspi-soft-pwm) or newer.
 - Node 13.9.0 or newer (perhaps works with as old as v. 6, but not tested)
 
-
 ## Installation
-	
+
 Install with npm:
+
 ```Shell
 npm install raspi-pca9685-pwm
 ```
-
 
 ## Example Usage
 
@@ -48,7 +45,9 @@ init(() => {
 ## API
 
 ### Module Constants
+
 `publicConst` defines convenient parameters.
+
 ```TypeScript
 export const publicConst = {
     maxChannelsPerBoard: 16,   // Number of channels in a PCA9685.
@@ -59,6 +58,7 @@ export const publicConst = {
 ```
 
 ### Interface and Class
+
 This module can use `IPWMConfig` for fake-polymorphism purpose to
 construct a `PCA9685PWM` object. It uses members differently from
 [raspi-soft-pwm](https://github.com/nebrius/raspi-soft-pwm).
@@ -67,6 +67,7 @@ calculated by `( board# ) * maxChannelsPerBoard + ( channel# )`.
 Both start from zero. `pin` can be in string, such as `'1'`.  
 `frequency` is in Hz. When omitted, defaultFrequency is used.  
 `range` is not used, because PCA9685 has 12-bit (fixed) PWM.
+
 ```TypeScript
 interface IPCA9685PWMConfig {
     pin: number | string; //  0 - maxChannelsPerBoard*maxBoards-1
@@ -76,6 +77,7 @@ interface IPCA9685PWMConfig {
 ```
 
 **PCA9685PWM** is a PWM channel on a PCA9685 board.
+
 ```TypeScript
 class PCA9685PWM {
     dutyCycle: number;  // 0.0 - 1.0
@@ -89,6 +91,7 @@ class PCA9685PWM {
     allOff(): void;  // Turn off all channels on the board.
 }
 ```
+
 ### new PCA9685PWM(config: number | string | object)
 
 Instantiates a new PWM channel on a PCA9685 board. When the first channel
@@ -102,13 +105,13 @@ Currently, once you instantiate a new PWM channel, you can't change
 its PWM frequency. It's not a hardware restriction and you can easily
 modify the code to allow it.
 
-
 ## Software PWM vs. Hardware PWM
 
-You can use 
+You can use
 [raspi-soft-pwm](https://github.com/nebrius/raspi-soft-pwm) without paying
 extra cost to buy a hardware PWM board. But you may consider using hardware PWM
 if the following occasions required;
+
 - Gitter-free output,
 - Linearity at low PWM output,
 - Many outputs,
@@ -129,6 +132,7 @@ init(() => {
     pwm.write(0.5); // 50% Duty Cycle.
 });
 ```
+
 To modify it to use the hardware PWM, you modify two lines with `'!!'`.
 
 ### Fake polymorphism
@@ -148,7 +152,7 @@ import { SoftPWM, IPWMConfig } from 'raspi-soft-pwm';
 init(() => {
     let pwm0: PCA9685PWM | SoftPWM;
     let pwm1: PCA9685PWM | SoftPWM;
-	
+
     pwm0 = module.createPWM(0);        // returns PCA9685PWM
     pwm1 = module.createPWM('GPIO22'); // returns SoftPWM
 
@@ -163,54 +167,45 @@ decordable as number is given to `pin`, `createPWM()` instantiates a
 `PCA9685PWM` object. Else, a `SoftPWM` object is returned. All public
 members and methods of `SoftPWM` are available in `PCA9685PWM`.
 
-
 ### Caution and limitation
 
 - There is a difference in behavior of the PWM output of `SoftPWM` and `PCA9685PWM`.
-[raspi-soft-pwm](https://github.com/nebrius/raspi-soft-pwm)
-uses C library of [pigpio](http://abyz.me.uk/rpi/pigpio/cif.html). Due
-to this implementation, when the process terminates, PWM outputs turn
-off. In contrast, the outputs of PCA9685 persist unless an init is sent.
+  [raspi-soft-pwm](https://github.com/nebrius/raspi-soft-pwm)
+  uses C library of [pigpio](http://abyz.me.uk/rpi/pigpio/cif.html). Due
+  to this implementation, when the process terminates, PWM outputs turn
+  off. In contrast, the outputs of PCA9685 persist unless an init is sent.
 
-- This module cannot detect how many PCA9685 boards are installed. 
-If you attempt to access a port not physically existing, an exception will
-be thrown.
+- This module cannot detect how many PCA9685 boards are installed.
+  If you attempt to access a port not physically existing, an exception will
+  be thrown.
 
 - I tested it using one PCA9685 board.
-
 
 ### Known bugs
 
 Should never be, again...
 (To be collected...)
 
-
 ## Credits
-	
+
 - APIs are inherited
-[raspi-soft-pwm](https://github.com/nebrius/raspi-soft-pwm) by nebrius.
+  [raspi-soft-pwm](https://github.com/nebrius/raspi-soft-pwm) by nebrius.
 - PCA9685 access by reading [pca9685 module](https://www.npmjs.com/package/pca9685) by Jason Heard,
-[Adafruit_CircuitPython_PCA9685](https://github.com/adafruit/Adafruit_CircuitPython_PCA9685), 
-and the data sheet of [PCA9685](https://www.nxp.com/products/power-management/lighting-driver-and-controller-ics/ic-led-controllers/16-channel-12-bit-pwm-fm-plus-ic-bus-led-controller:PCA9685).
+  [Adafruit_CircuitPython_PCA9685](https://github.com/adafruit/Adafruit_CircuitPython_PCA9685),
+  and the data sheet of [PCA9685](https://www.nxp.com/products/power-management/lighting-driver-and-controller-ics/ic-led-controllers/16-channel-12-bit-pwm-fm-plus-ic-bus-led-controller:PCA9685).
 
+# License
 
-License
-=======
-	
 The MIT License (MIT)
-	
 Copyright (c) K. Chinzei (kchinzei@gmail.com)
-	
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
 to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 copies of the Software, and to permit persons to whom the Software is
 furnished to do so, subject to the following conditions:
-	
 The above copyright notice and this permission notice shall be included in
 all copies or substantial portions of the Software.
-	
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE

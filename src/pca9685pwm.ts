@@ -85,16 +85,16 @@ export class PCA9685PWM implements IPCA9685PWM {
   private _ch = 0;
   private _board = 0;
 
-  public get ch() { return this._ch; }
-  public get board() { return this._board; }
-  public get frequency() { return PCA9685PWM._pca9685[this.board].frequency; }
-  public get dutyCycle() { return this.read(); }
+  public get ch(): number { return this._ch; }
+  public get board(): number { return this._board; }
+  public get frequency(): number { return PCA9685PWM._pca9685[this.board].frequency; }
+  public get dutyCycle(): number { return this.read(); }
 
   /* For SoftPWM compatibility */
   /* istanbul ignore next */
-  public get range() { return publicConst.stepsPerCycle; }
+  public get range(): number { return publicConst.stepsPerCycle; }
   /* istanbul ignore next */
-  public get pin() { return this.ch + this.board*publicConst.maxChannelsPerBoard; }
+  public get pin(): number { return this.ch + this.board*publicConst.maxChannelsPerBoard; }
 
   public write(dutyCycle: number): void {
     PCA9685PWM._pca9685[this.board].setDutyCycle(this.ch, dutyCycle);
@@ -117,8 +117,7 @@ export class PCA9685PWM implements IPCA9685PWM {
   }
 
   constructor(config: number | string | IPWMConfig) {
-    let pin: number | string;
-    pin = checkPin(config);
+    const pin: (number | string) = checkPin(config);
 
     let port = 0;
     if (typeof pin === 'number') {
@@ -147,7 +146,7 @@ export class PCA9685PWM implements IPCA9685PWM {
   }
 
   /* istanbul ignore next */
-  public destroy() {
+  public destroy(): void {
     // It does not destroy I2C communication.
   }
 }
@@ -159,8 +158,7 @@ export const module: IPWMFactory = {
     if gicen pin represents a number (e.g., 22 or '022'), PCA9685PWM.
   */
   createPWM(config: number | string | IPWMConfig) {
-    let pin: number | string;
-    pin = checkPin(config);
+    const pin: (number | string) = checkPin(config);
 
     let port = 0;
     if (typeof pin === 'number') {
