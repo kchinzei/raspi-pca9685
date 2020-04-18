@@ -13,8 +13,8 @@ npm i -D ts-jest @types/jest
 ```
 
 ### Running tests
-=======
-Since this test contains creating SoftPWM object from 
+
+Since this test contains creating SoftPWM object from
 [raspi soft pwm](https://github.com/nebrius/raspi-soft-pwm),
 following requirements apply as standard ones for SoftPWM.
 
