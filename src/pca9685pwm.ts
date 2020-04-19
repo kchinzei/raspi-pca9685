@@ -63,7 +63,7 @@ export interface IPCA9685PWM {
 
   // For SoftPWM compatibility purpose
   readonly range: number;
-  readonly pin: number;
+  readonly pins: number;
 }
 
 function checkPin(config: number | string | IPWMConfig): number | string {
@@ -93,7 +93,7 @@ export class PCA9685PWM implements IPCA9685PWM {
   /* istanbul ignore next */
   public get range(): number { return publicConst.stepsPerCycle; }
   /* istanbul ignore next */
-  public get pin(): number { return this.ch + this.board*publicConst.maxChannelsPerBoard; }
+  public get pins(): number { return this.ch + this.board * publicConst.maxChannelsPerBoard; }
 
   public write(dutyCycle: number): void {
     PCA9685PWM._pca9685[this.board].setDutyCycle(this.ch, dutyCycle);
@@ -127,8 +127,8 @@ export class PCA9685PWM implements IPCA9685PWM {
         throw new RangeError(`Invalid port number '${pin}', not a number string).`);
       }
     }
-    if (port < 0 || port >= publicConst.maxChannelsPerBoard*publicConst.maxBoards) {
-      throw new RangeError(`Invalid port number ${port}, out of [0,${publicConst.maxChannelsPerBoard*publicConst.maxBoards}).`);
+    if (port < 0 || port >= publicConst.maxChannelsPerBoard * publicConst.maxBoards) {
+      throw new RangeError(`Invalid port number ${port}, out of [0,${publicConst.maxChannelsPerBoard * publicConst.maxBoards}).`);
     }
     this._ch = port % publicConst.maxChannelsPerBoard;
     this._board = Math.floor(port / publicConst.maxChannelsPerBoard);
