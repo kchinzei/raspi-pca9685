@@ -188,11 +188,15 @@ export class PCA9685Module implements IPCA9685Module {
     checkChannel(ch);
 
     dutyCycleUInt = Math.round(dutyCycleUInt);
+    if (dutyCycleUInt >= publicConst.stepsPerCycle) {
+      this.channelOn(ch);
+      return;
+    }
     if (dutyCycleUInt < 0) dutyCycleUInt = 0;
-    if (dutyCycleUInt >= publicConst.stepsPerCycle) dutyCycleUInt = publicConst.stepsPerCycle - 1;
 
     const onStep = Math.round((privateConst.baseClockHertz / this.frequency) / publicConst.maxChannelsPerBoard * onOffsetPerCh[ch]);
     let offStep = onStep + dutyCycleUInt;
+    /* istanbul ignore else */
     if (offStep > publicConst.stepsPerCycle) offStep -= publicConst.stepsPerCycle;
 
     PCA9685Module.i2c.writeByteSync(this.address, privateConst.channel0OnStepLowByte  + privateConst.registersPerChannel * ch, onStep & 0xFF);

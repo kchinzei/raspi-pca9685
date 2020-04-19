@@ -70,11 +70,10 @@ function checkPin(config: number | string | IPWMConfig): number | string {
   // It preserves channel's current PWM status.
   // If application should init PWM before use, it's your task.
 
-  let pin: number | string;
-  pin = 0;
+  let pin: (number | string) = 0;
   if (typeof config === 'object') {
     pin = config.pin;
-  } else if (typeof config === 'number' || typeof config === 'string') {
+  } else {
     pin = config;
   }
   return pin;
@@ -122,7 +121,7 @@ export class PCA9685PWM implements IPCA9685PWM {
     let port = 0;
     if (typeof pin === 'number') {
       port = pin;
-    } else if (typeof pin === 'string') {
+    } else {
       port = Number(pin);
       if (isNaN(port)) {
         throw new RangeError(`Invalid port number '${pin}', not a number string).`);
@@ -160,14 +159,8 @@ export const module: IPWMFactory = {
   createPWM(config: number | string | IPWMConfig) {
     const pin: (number | string) = checkPin(config);
 
-    let port = 0;
-    if (typeof pin === 'number') {
-      port = pin;
-    } else if (typeof pin === 'string') {
-      port = Number(pin);
-      if (isNaN(port)) {
-        return new SoftPWM(config);
-      }
+    if (typeof pin === 'string' && isNaN(Number(pin))) {
+      return new SoftPWM(config);
     }
     return new PCA9685PWM(config);
   }

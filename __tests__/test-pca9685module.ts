@@ -95,13 +95,13 @@ function test_pca9685(ch: number, freq:number, val:number): void {
     }).not.toThrow();
   });
 
-  test(`${i++}. Member functions: irregal channel (negative) should fail.`, () => {
+  test(`${i++}. Member functions: reading irregal duty (negative) should fail.`, () => {
     expect(() => {
       pca9685.dutyCycle(-1);
     }).toThrow();
   });
 
-  test(`${i++}. Member functions: irregal channel (exceed h/w) should fail.`, () => {
+  test(`${i++}. Member functions: reading irregal channel (exceed h/w) should fail.`, () => {
     expect(() => {
       pca9685.dutyCycle(publicConst.maxChannelsPerBoard);
     }).toThrow();
@@ -120,13 +120,13 @@ function test_pca9685(ch: number, freq:number, val:number): void {
     expect(pca9685.dutyCycle(ch)).toBeCloseTo(val);
   });
 
-  test(`${i++}. Member functions: setDutyCycle(ch) should work value<0 with some allowance.`, () => {
+  test(`${i++}. Member functions: setDutyCycle(ch) should truncate to 0 when value<0.`, () => {
     pca9685.setDutyCycle(ch, -1);
     expect(pca9685.dutyCycle(ch)).toBe(0);
   });
 
-  test(`${i++}. Member functions: setDutyCycle(ch) should work value>1 with some allowance.`, () => {
-    pca9685.setDutyCycle(ch, 1);
+  test(`${i++}. Member functions: setDutyCycle(ch) should truncate to 1 when value>1.`, () => {
+    pca9685.setDutyCycle(ch, 1.5);
     expect(pca9685.dutyCycle(ch)).toBeCloseTo(1);
   });
 
@@ -135,19 +135,29 @@ function test_pca9685(ch: number, freq:number, val:number): void {
     expect(pca9685.dutyCycle(7)).toBeCloseTo(0.8);
   });
 
-  test(`${i++}. Member functions: dutyCycleUInt(ch) should exactly agree to setDutyCycleUInt() value=0.`, () => {
+  test(`${i++}. Member functions: dutyCycleUInt(ch) should agree to setDutyCycleUInt() when value=0.`, () => {
     pca9685.setDutyCycleUInt(ch, 0);
     expect(pca9685.dutyCycleUInt(ch)).toBe(0);
   });
 
-  test(`${i++}. Member functions: dutyCycleUInt(ch) should exactly agree to setDutyCycleUInt() value=0x01.`, () => {
+  test(`${i++}. Member functions: dutyCycleUInt(ch) should agree to setDutyCycleUInt() when value=0x01.`, () => {
     pca9685.setDutyCycleUInt(ch, 0x01);
     expect(pca9685.dutyCycleUInt(ch)).toBe(0x01);
   });
 
-  test(`${i++}. Member functions: dutyCycleUInt(ch) should exactly agree to setDutyCycleUInt() value=0x0fff.`, () => {
+  test(`${i++}. Member functions: dutyCycleUInt(ch) should agree to setDutyCycleUInt() when value=0x0fff.`, () => {
     pca9685.setDutyCycleUInt(ch, 0x0fff);
     expect(pca9685.dutyCycleUInt(ch)).toBe(0x0fff);
+  });
+
+  test(`${i++}. Member functions: setDutyCycleUInt(ch) should truncate to 0 when value<0.`, () => {
+    pca9685.setDutyCycleUInt(ch, -1);
+    expect(pca9685.dutyCycleUInt(ch)).toBe(0);
+  });
+
+  test(`${i++}. Member functions: setDutyCycleUInt(ch) should truncate to 0x1000 when value>=0x1000.`, () => {
+    pca9685.setDutyCycleUInt(ch, 0x1001);
+    expect(pca9685.dutyCycleUInt(ch)).toBe(0x1000);
   });
 
   test(`${i++}. Member functions: channelOn(ch) should set raw PWM value to 0x1000.`, () => {
