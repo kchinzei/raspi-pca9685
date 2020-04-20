@@ -71,3 +71,7 @@ typings/
 .next
 __tests__/
 jest.config.js
+.editorconfig
+.eslintignore
+.prettierignore
+prettier.config.js
