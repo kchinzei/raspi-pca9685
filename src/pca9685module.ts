@@ -95,7 +95,6 @@ const onOffsetPerCh: number[] = [
   0x02, 0x0A, 0x06, 0x0E,
   0x01, 0x09, 0x05, 0x0D,
   0x03, 0x0B, 0x07, 0x0F];
-/* onOffsetPerBourd[] is not used now
 const onOffsetPerBourd: number[] = [
   0x00, 0x20, 0x10, 0x30,
   0x08, 0x28, 0x18, 0x38,
@@ -116,12 +115,12 @@ const onOffsetPerBourd: number[] = [
   0x0B, 0x2B, 0x1B, 0x3B,
   0x07, 0x27, 0x17, 0x37,
   0x0F, 0x2F];  // max 62 board.
-*/
 
 import { I2C } from 'raspi-i2c';
 
 export interface IPCA9685Module {
   readonly address: number;
+  readonly board: number;
   frequency: number;
 
   dutyCycle(ch: number): number;
@@ -170,7 +169,8 @@ export class PCA9685Module implements IPCA9685Module {
   private _frequency: number;
   private _address: number;
 
-  public get address(): number {return this._address; }
+  public get address(): number { return this._address; }
+  public get board(): number { return this.address - privateConst.defaultAddress; }
   public get frequency(): number { return this._frequency; }
   public set frequency(frequency: number) {
     this.setFrequency(frequency);
@@ -194,7 +194,7 @@ export class PCA9685Module implements IPCA9685Module {
     }
     if (dutyCycleUInt < 0) dutyCycleUInt = 0;
 
-    const onStep = Math.round((privateConst.baseClockHertz / this.frequency) / publicConst.maxChannelsPerBoard * onOffsetPerCh[ch]);
+    const onStep = Math.round(publicConst.stepsPerCycle / publicConst.maxChannelsPerBoard * (onOffsetPerCh[ch] + onOffsetPerBourd[this.board] / publicConst.maxBoards));
     let offStep = onStep + dutyCycleUInt;
     /* istanbul ignore else */
     if (offStep > publicConst.stepsPerCycle) offStep -= publicConst.stepsPerCycle;
