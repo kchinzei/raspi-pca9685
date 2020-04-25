@@ -27,7 +27,7 @@ THE SOFTWARE.
 
    Make Asayake to Wake Project.
    Kiyo Chinzei
-   https://github.com/asayake-led/raspi-pca9685-pwm
+   https://github.com/kchinzei/raspi-pca9685-pwm
 */
 
 const numberOfInstalledBoard = 1;
