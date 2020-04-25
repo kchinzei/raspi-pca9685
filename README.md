@@ -4,8 +4,7 @@ Hardware PWM by PCA9685.
 Raspi PCA9685 PWM is built upon
 [Raspi i2c](https://github.com/nebrius/raspi-i2c) to
 provide PWM outputs by controling PCA9685 via I2C connection.
-It's intended to work on PCA9685 boards such asfrom [Adafruit](https://www.adafruit.com/product/815).
-Technical information can be found [here](https://learn.adafruit.com/16-channel-pwm-servo-driver).
+It's intended to work on PCA9685 boards such as from [Adafruit](https://www.adafruit.com/product/815).
 
 ## System Requirements
 
@@ -14,7 +13,7 @@ Technical information can be found [here](https://learn.adafruit.com/16-channel-
 - At least one PCA9685 board.
 - [raspi-i2c 6.2.4](https://github.com/nebrius/raspi-i2c) or newer.
 - [raspi-soft-pwm 6.0.2](https://github.com/nebrius/raspi-soft-pwm) or newer.
-- Node 13.9.0 or newer (perhaps works with as old as v. 6, but not tested)
+- Node 11.15.0 or newer (perhaps older one with ES2015, but not tested).
 
 ## Installation
 
@@ -26,7 +25,7 @@ npm install raspi-pca9685-pwm
 
 ## Example Usage
 
-In TypeScript/ES2019:
+In TypeScript/ES2015:
 
 ```TypeScript
 import { init } from 'raspi';
@@ -62,11 +61,6 @@ export const publicConst = {
 This module can use `IPWMConfig` for fake-polymorphism purpose to
 construct a `PCA9685PWM` object. It uses members differently from
 [raspi-soft-pwm](https://github.com/nebrius/raspi-soft-pwm).
-`pin` is used to specify the board address and a PWM channel. `pin` is
-calculated by `( board# ) * maxChannelsPerBoard + ( channel# )`.
-Both start from zero. `pin` can be in string, such as `'1'`.  
-`frequency` is in Hz. When omitted, defaultFrequency is used.  
-`range` is not used, because PCA9685 has 12-bit (fixed) PWM.
 
 ```TypeScript
 interface IPCA9685PWMConfig {
@@ -75,15 +69,26 @@ interface IPCA9685PWMConfig {
     range?: number;       // Not used.
 }
 ```
+`pin` is the board address offset and a PWM channel.
+`pin` is calculated by Eq. 1.
+```
+  ( pin ) = ( board# ) * maxChannelsPerBoard + ( channel# ) ... (1)
+```
+Both start from zero. `pin` can be in string, such as `'1'`.
+Internally, the base address `0x40` is added to `board#`.
+
+`frequency` is Hz. When omitted, defaultFrequency is used.  
+`range` is not used, because PCA9685 has 12-bit (fixed) PWM.
 
 **PCA9685PWM** is a PWM channel on a PCA9685 board.
 
-```TypeScript
+```typescript
 class PCA9685PWM {
     dutyCycle: number;  // 0.0 - 1.0
     readonly ch: number;
     readonly board: number;
     readonly frequency: number; // in Hz
+    readonly pins: number;
 
     write(dutyCycle: number): void;  // Activate PWM by dutyCycle [0,1].
     on(): void;  // Turn on this channel.
@@ -104,6 +109,9 @@ rest of channels you can provide the port number only instead of
 Currently, once you instantiate a new PWM channel, you can't change
 its PWM frequency. It's not a hardware restriction and you can easily
 modify the code to allow it.
+
+If `board#` in Eq. 1 does not point physically existing board,
+`new PCA9685PWM()` will throw an exception.
 
 ## Software PWM vs. Hardware PWM
 
@@ -133,6 +141,7 @@ init(() => {
 });
 ```
 
+(To run this example, you need `sudo`, per pigpio library requirement.)  
 To modify it to use the hardware PWM, you modify two lines with `'!!'`.
 
 ### Fake polymorphism
@@ -193,6 +202,7 @@ Should never be, again...
 - PCA9685 access by reading [pca9685 module](https://www.npmjs.com/package/pca9685) by Jason Heard,
   [Adafruit_CircuitPython_PCA9685](https://github.com/adafruit/Adafruit_CircuitPython_PCA9685),
   and the data sheet of [PCA9685](https://www.nxp.com/products/power-management/lighting-driver-and-controller-ics/ic-led-controllers/16-channel-12-bit-pwm-fm-plus-ic-bus-led-controller:PCA9685).
+- Technical information of [Adafruit PCA9685 boards](https://learn.adafruit.com/16-channel-pwm-servo-driver).
 
 # License
 
