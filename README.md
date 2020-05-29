@@ -4,7 +4,8 @@ Hardware PWM by PCA9685.
 Raspi PCA9685 PWM is built upon
 [Raspi i2c](https://github.com/nebrius/raspi-i2c) to
 provide PWM outputs by controling PCA9685 via I2C connection.
-It's intended to work on PCA9685 boards such as from [Adafruit](https://www.adafruit.com/product/815).
+It's intended to work on PCA9685 boards such as
+from [Adafruit](https://www.adafruit.com/product/815).
 
 ## System Requirements
 
@@ -69,12 +70,17 @@ interface IPCA9685PWMConfig {
     range?: number;       // Not used.
 }
 ```
+
 `pin` is the board address offset and a PWM channel.
 `pin` is calculated by Eq. 1.
+
 ```
   ( pin ) = ( board# ) * maxChannelsPerBoard + ( channel# ) ... (1)
 ```
-Both start from zero. `pin` can be in string, such as `'1'`.
+
+Both count from zero. They don't need to start from zero - if you
+like to use hardware address offset 0x01, it's fine to skip 0x00.
+`pin` can be in string, such as `'1'`.
 Internally, the base address `0x40` is added to `board#`.
 
 `frequency` is Hz. When omitted, defaultFrequency is used.  
@@ -84,16 +90,16 @@ Internally, the base address `0x40` is added to `board#`.
 
 ```typescript
 class PCA9685PWM {
-    dutyCycle: number;  // 0.0 - 1.0
-    readonly ch: number;
-    readonly board: number;
-    readonly frequency: number; // in Hz
-    readonly pins: number;
+  dutyCycle: number; // 0.0 - 1.0
+  readonly ch: number;
+  readonly board: number;
+  readonly frequency: number; // in Hz
+  readonly pins: number;
 
-    write(dutyCycle: number): void;  // Activate PWM by dutyCycle [0,1].
-    on(): void;  // Turn on this channel.
-    off(): void;  // Turn of this channel.
-    allOff(): void;  // Turn off all channels on the board.
+  write(dutyCycle: number): void; // Activate PWM by dutyCycle [0,1].
+  on(): void; // Turn on this channel.
+  off(): void; // Turn of this channel.
+  allOff(): void; // Turn off all channels on the board.
 }
 ```
 
