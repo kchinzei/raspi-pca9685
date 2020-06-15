@@ -80,7 +80,7 @@ function checkPin(config: number | string | IPWMConfig): number | string {
 }
 
 export class PCA9685PWM implements IPCA9685PWM {
-  private static _pca9685: PCA9685Module[] = new Array(publicConst.maxBoards);
+  private static _pca9685: PCA9685Module[] = new Array(publicConst.maxBoards) as PCA9685Module[];
   private _ch = 0;
   private _board = 0;
 

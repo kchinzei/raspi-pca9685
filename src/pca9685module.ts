@@ -240,19 +240,19 @@ export class PCA9685Module implements IPCA9685Module {
     // JS/TS doesn't have sleep().
     // https://qiita.com/asa-taka/items/888bc5a1d7f30ee7eda2
     const sleep = (msec: number) => new Promise(resolve => setTimeout(resolve, msec));
-    (async () => {
-      let mode1: number;
-      mode1 = PCA9685Module.i2c.readByteSync(this.address, privateConst.modeRegister1);
-      const sleepMode = (mode1 & 0x7F) | privateConst.sleepBit;  // Sleepy
-      PCA9685Module.i2c.writeByteSync(this.address, privateConst.modeRegister1, sleepMode);
-      PCA9685Module.i2c.writeByteSync(this.address, privateConst.preScaleRegister, prescale);
-      PCA9685Module.i2c.writeByteSync(this.address, privateConst.modeRegister1, mode1);	// Wakeup
+
+    let mode1 = PCA9685Module.i2c.readByteSync(this.address, privateConst.modeRegister1);
+    const sleepMode = (mode1 & 0x7F) | privateConst.sleepBit;  // Sleepy
+    PCA9685Module.i2c.writeByteSync(this.address, privateConst.modeRegister1, sleepMode);
+    PCA9685Module.i2c.writeByteSync(this.address, privateConst.preScaleRegister, prescale);
+    PCA9685Module.i2c.writeByteSync(this.address, privateConst.modeRegister1, mode1);	// Wakeup
+    void (async () => {
       await sleep(5);	// wait for oscillator
-      /* istanbul ignore next */
-      mode1 = mode1 | privateConst.autoIncrementOn;
-      /* istanbul ignore next */
-      PCA9685Module.i2c.writeByteSync(this.address, privateConst.modeRegister1, mode1);
     })();
+    /* istanbul ignore next */
+    mode1 = mode1 | privateConst.autoIncrementOn;
+    /* istanbul ignore next */
+    PCA9685Module.i2c.writeByteSync(this.address, privateConst.modeRegister1, mode1);
   }
 
   public reset(): void {
