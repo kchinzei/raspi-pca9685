@@ -1,6 +1,6 @@
 {
   "name": "raspi-pca9685-pwm",
-  "version": "0.4.4",
+  "version": "0.4.5",
   "description": "Hardware PWM by PCA9685 via I2C on the Raspberry Pi",
   "main": "dist/index.js",
   "scripts": {
