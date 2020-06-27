@@ -132,26 +132,26 @@ export interface IPCA9685Module {
 
 function checkChannel(val: any): void {
   if (typeof val !== 'number' || 0 > val || val >= publicConst.maxChannelsPerBoard) {
-    throw new Error(`Invalid channel ${val}, out of [0,${publicConst.maxChannelsPerBoard}).`);
+    throw new Error(`Invalid channel ${val as string}, out of [0,${publicConst.maxChannelsPerBoard}).`);
   }
 }
 
 function checkBoard(val: any): void {
   if (typeof val !== 'number' || 0 > val || val >= publicConst.maxBoards) {
-    throw new Error(`Invalid board ${val}, out of [0,${publicConst.maxBoards})`);
+    throw new Error(`Invalid board ${val as string}, out of [0,${publicConst.maxBoards})`);
   }
 }
 
 function checkFrequency(val: any): number {
   if (typeof val !== 'number' || val <= 0) {
-    throw new Error(`Invalid frequency ${val}: should be a non-zero, positive number.`);
+    throw new Error(`Invalid frequency ${val as string}: should be a non-zero, positive number.`);
   }
   const prescale = Math.floor(privateConst.baseClockHertz / publicConst.stepsPerCycle / val + 0.5);
   if (prescale < 3) {
-    throw new RangeError('Invalid frequency ${val}: exceed h/w limit.');
+    throw new RangeError('Invalid frequency ${val as string}: exceed h/w limit.');
   }
   if (prescale > 0xff) {
-    throw new RangeError('Invalid frequency ${val}: too low.');
+    throw new RangeError('Invalid frequency ${val as string}: too low.');
   }
   return prescale;
 }
@@ -262,7 +262,7 @@ export class PCA9685Module implements IPCA9685Module {
       PCA9685Module.i2c.writeByteSync(this.address, privateConst.modeRegister1, privateConst.modeRegister1Default);
     }
     catch (e) {
-      throw new Error(`Reset failed as ${e}. Does h/w exists for address ${this.address}?`);
+      throw new Error(`Reset failed as ${e as string}. Does h/w exists for address ${this.address}?`);
     }
   }
 
