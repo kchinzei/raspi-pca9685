@@ -11,3 +11,6 @@
     - cd pigpio
     - make
     - sudo make install
+  before_script:
+    - npm install npm-run-all
+    - npm install prettier
