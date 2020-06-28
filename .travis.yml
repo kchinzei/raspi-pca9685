@@ -1,15 +1,14 @@
-{
-  sudo: true,
-  arch: [
-#    "arm",
+  os: "linux"
+  dist: "xenial"
+  arch:
     "arm64"
-  ],
-  language: node_js,
-  script: "npm run test",
-  "node_js": [
-#    "11",
-#    "12",
-#    "13",
+  language: node_js
+  "node_js":
     "14"
-  ]
-}
+  script: "npm run test"
+  before_install:
+    - wget https://github.com/joan2937/pigpio/archive/master.zip
+    - unzip master.zip
+    - cd pigpio-master
+    - make
+    - sudo make install
