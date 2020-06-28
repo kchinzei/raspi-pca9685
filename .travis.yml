@@ -12,8 +12,7 @@
     - make
     - sudo make install
   before_script:
-    - which npx
-    - sudo `which npm` install -g npx
+    - ls -l /home/travis/.nvm/versions/node/v14.4.0/bin
     - npm install eslint
     - npm install npm-run-all
     - npm install prettier
