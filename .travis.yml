@@ -12,5 +12,7 @@
     - make
     - sudo make install
   before_script:
+    - sudo npm install -g npx
+    - npm install eslint
     - npm install npm-run-all
     - npm install prettier
