@@ -1,4 +1,9 @@
 {
+  arch: [
+    "arm6",
+    "arm7",
+    "arm64"
+  ],
   language: node_js,
   script: "npm run test",
   "node_js": [
