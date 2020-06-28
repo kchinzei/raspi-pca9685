@@ -1,14 +1,14 @@
   os: "linux"
   dist: "xenial"
   arch:
-    "arm",
-    "arm64"
+    - "arm"
+    - "arm64"
   language: node_js
   "node_js":
-    "11",
-    "12",
-    "13",
-    "14"
+    - "11"
+    - "12"
+    - "13"
+    - "14"
   script: "npm run test"
   before_install:
     - git clone https://github.com/joan2937/pigpio
