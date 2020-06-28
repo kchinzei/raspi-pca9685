@@ -1,15 +1,15 @@
 {
+  sudo: true,
   arch: [
-    "arm6",
-    "arm7",
+#    "arm",
     "arm64"
   ],
   language: node_js,
   script: "npm run test",
   "node_js": [
-    "11",
-    "12",
-    "13",
+#    "11",
+#    "12",
+#    "13",
     "14"
   ]
 }
