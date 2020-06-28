@@ -1,5 +1,9 @@
 # Raspi PCA9685 PWM
 
+[![npm version](https://badge.fury.io/js/raspi-pca9685-pwm.svg)](https://badge.fury.io/js/raspi-pca9685-pwm)
+[![Coverage Status](https://coveralls.io/repos/github/kchinzei/raspi-pca9685-pwm/badge.svg?branch=fakemorph)](https://coveralls.io/github/kchinzei/raspi-pca9685-pwm?branch=fakemorph)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 Hardware PWM by PCA9685.
 Raspi PCA9685 PWM is built upon
 [Raspi i2c](https://github.com/nebrius/raspi-i2c) to

@@ -75,3 +75,4 @@ jest.config.js
 .eslintignore
 .prettierignore
 prettier.config.js
+.travis.yml

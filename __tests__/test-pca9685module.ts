@@ -36,73 +36,83 @@ import { init } from 'raspi';
 import { PCA9685Module, publicConst } from '../src/index';
 
 function test_pca9685(ch: number, freq:number, val:number): void {
-  var pca9685: PCA9685Module;
   let i = 1;
 
   test(`${i++}. Instantiation of PCM9685 object: illegal board (negative) should fail`, () => {
     expect(() => {
-      pca9685 = new PCA9685Module(-1, freq);
+      const pca9685: PCA9685Module = new PCA9685Module(-1, freq);
+      pca9685.reset();
     }).toThrow();
   });
 
   test(`${i++}. Instantiation of PCM9685 object: illegal board (exceed available h/w) should fail`, () => {
     expect(() => {
-      pca9685 = new PCA9685Module(numberOfInstalledBoard, freq);
+      const pca9685: PCA9685Module = new PCA9685Module(numberOfInstalledBoard, freq);
+      pca9685.reset();
     }).toThrow();
   });
 
   test(`${i++}. Instantiation of PCM9685 object: illegal frequency (0) should fail`, () => {
     expect(() => {
-      pca9685 = new PCA9685Module(0, 0);
+      const pca9685: PCA9685Module = new PCA9685Module(0, 0);
+      pca9685.reset();
     }).toThrow();
   });
 
   test(`${i++}. Instantiation of PCM9685 object: illegal frequency (negative) should fail`, () => {
     expect(() => {
-      pca9685 = new PCA9685Module(0, -1);
+      const pca9685: PCA9685Module = new PCA9685Module(0, -1);
+      pca9685.reset();
     }).toThrow();
   });
 
   test(`${i++}. Instantiation of PCM9685 object: illegal frequency (exceed h/w limitation) should fail`, () => {
     expect(() => {
       // 10kHz ... max is 25MHz / 4096 / 3 =2.034 kHz
-      pca9685 = new PCA9685Module(0, 10000);
+      const pca9685: PCA9685Module = new PCA9685Module(0, 10000);
+      pca9685.reset();
     }).toThrow();
   });
 
   test(`${i++}. Instantiation of PCM9685 object: illegal frequency (too low) should fail`, () => {
     expect(() => {
-      pca9685 = new PCA9685Module(0, 10);
+      const pca9685: PCA9685Module = new PCA9685Module(0, 10);
+      pca9685.reset();
     }).toThrow();
   });
 
   test(`${i++}. Instantiation of PWM object: omitting frequency should be accepted.`, () => {
     expect(() => {
-      pca9685 = new PCA9685Module(0);
+      const pca9685: PCA9685Module = new PCA9685Module(0);
+      pca9685.reset();
     }).not.toThrow();
   });
 
   test(`${i++}. Multiple instantiation of PCM9685 object should be no harm.`, () => {
     expect(() => {
-      pca9685 = new PCA9685Module(0, freq);
+      const pca9685: PCA9685Module = new PCA9685Module(0, freq);
+      pca9685.reset();
     }).not.toThrow();
   });
 
 
   test(`${i++}. Member functions: reset() should run successfully.`, () => {
     expect(() => {
+      const pca9685: PCA9685Module = new PCA9685Module(0, freq);
       pca9685.reset();
     }).not.toThrow();
   });
 
   test(`${i++}. Member functions: reading irregal duty (negative) should fail.`, () => {
     expect(() => {
+      const pca9685: PCA9685Module = new PCA9685Module(0, freq);
       pca9685.dutyCycle(-1);
     }).toThrow();
   });
 
   test(`${i++}. Member functions: reading irregal channel (exceed h/w) should fail.`, () => {
     expect(() => {
+      const pca9685: PCA9685Module = new PCA9685Module(0, freq);
       pca9685.dutyCycle(publicConst.maxChannelsPerBoard);
     }).toThrow();
   });
@@ -111,66 +121,79 @@ function test_pca9685(ch: number, freq:number, val:number): void {
 
   test(`${i++}. Member functions: setDutyCycle(ch) should run successfully.`, () => {
     expect(() => {
+      const pca9685: PCA9685Module = new PCA9685Module(0, freq);
       pca9685.setDutyCycle(ch, val);
     }).not.toThrow();
   });
 
   test(`${i++}. Member functions: dutyCycle(ch) should agree to setDutyCycle() value=${val}.`, () => {
+    const pca9685: PCA9685Module = new PCA9685Module(0, freq);
     pca9685.setDutyCycle(ch, val);
     expect(pca9685.dutyCycle(ch)).toBeCloseTo(val);
   });
 
   test(`${i++}. Member functions: setDutyCycle(ch) should truncate to 0 when value<0.`, () => {
+    const pca9685: PCA9685Module = new PCA9685Module(0, freq);
     pca9685.setDutyCycle(ch, -1);
     expect(pca9685.dutyCycle(ch)).toBe(0);
   });
 
   test(`${i++}. Member functions: setDutyCycle(ch) should truncate to 1 when value>1.`, () => {
+    const pca9685: PCA9685Module = new PCA9685Module(0, freq);
     pca9685.setDutyCycle(ch, 1.5);
     expect(pca9685.dutyCycle(ch)).toBeCloseTo(1);
   });
 
   test(`${i++}. Member functions: setDutyCycle() should work for different channel.`, () => {
+    const pca9685: PCA9685Module = new PCA9685Module(0, freq);
     pca9685.setDutyCycle(7, 0.8);
     expect(pca9685.dutyCycle(7)).toBeCloseTo(0.8);
   });
 
   test(`${i++}. Member functions: dutyCycleUInt(ch) should agree to setDutyCycleUInt() when value=0.`, () => {
+    const pca9685: PCA9685Module = new PCA9685Module(0, freq);
     pca9685.setDutyCycleUInt(ch, 0);
     expect(pca9685.dutyCycleUInt(ch)).toBe(0);
   });
 
   test(`${i++}. Member functions: dutyCycleUInt(ch) should agree to setDutyCycleUInt() when value=0x01.`, () => {
+    const pca9685: PCA9685Module = new PCA9685Module(0, freq);
     pca9685.setDutyCycleUInt(ch, 0x01);
     expect(pca9685.dutyCycleUInt(ch)).toBe(0x01);
   });
 
   test(`${i++}. Member functions: dutyCycleUInt(ch) should agree to setDutyCycleUInt() when value=0x0fff.`, () => {
+    const pca9685: PCA9685Module = new PCA9685Module(0, freq);
     pca9685.setDutyCycleUInt(ch, 0x0fff);
     expect(pca9685.dutyCycleUInt(ch)).toBe(0x0fff);
   });
 
   test(`${i++}. Member functions: setDutyCycleUInt(ch) should truncate to 0 when value<0.`, () => {
+    const pca9685: PCA9685Module = new PCA9685Module(0, freq);
     pca9685.setDutyCycleUInt(ch, -1);
     expect(pca9685.dutyCycleUInt(ch)).toBe(0);
   });
 
   test(`${i++}. Member functions: setDutyCycleUInt(ch) should truncate to 0x1000 when value>=0x1000.`, () => {
+    const pca9685: PCA9685Module = new PCA9685Module(0, freq);
     pca9685.setDutyCycleUInt(ch, 0x1001);
     expect(pca9685.dutyCycleUInt(ch)).toBe(0x1000);
   });
 
   test(`${i++}. Member functions: channelOn(ch) should set raw PWM value to 0x1000.`, () => {
+    const pca9685: PCA9685Module = new PCA9685Module(0, freq);
     pca9685.channelOn(ch);
     expect(pca9685.dutyCycleUInt(ch)).toBe(0x1000);
   });
 
   test(`${i++}. Member functions: channelOff(ch) should set PWM value to 0.`, () => {
+    const pca9685: PCA9685Module = new PCA9685Module(0, freq);
     pca9685.channelOff(ch);
     expect(pca9685.dutyCycleUInt(ch)).toBe(0);
   });
 
   test(`${i++}. Member functions: channelOff() should set PWM values of all channels to 0.`, () => {
+    const pca9685: PCA9685Module = new PCA9685Module(0, freq);
     pca9685.channelOff();
     let sum = 0;
     for (let j=0; j++; j<publicConst.maxChannelsPerBoard) {
@@ -180,17 +203,20 @@ function test_pca9685(ch: number, freq:number, val:number): void {
   });
 
   test(`${i++}. Member functions: channelOn(ch) should set PWM value to 1.`, () => {
+    const pca9685: PCA9685Module = new PCA9685Module(0, freq);
     pca9685.channelOn(3);
     expect(pca9685.dutyCycle(3)).toBeCloseTo(1);
   });
 
   test(`${i++}. Member functions: setDutyCycle(ch) should turn on again after setting all channels to 0.`, () => {
+    const pca9685: PCA9685Module = new PCA9685Module(0, freq);
     pca9685.setDutyCycleUInt(ch, 0x3ff);
     expect(pca9685.dutyCycleUInt(ch)).toBe(0x3ff);
   });
 
   /*
   test(`${i++}. Destroy gracefully.`, () => {
+  const pca9685: PCA9685Module = new PCA9685Module(0, freq);
     expect(() => {
       pca9685.destroy();
     }).not.toThrow();

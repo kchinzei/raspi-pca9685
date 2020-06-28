@@ -71,3 +71,4 @@ typings/
 .next
 dist/
 declarations/
+.travis.yml

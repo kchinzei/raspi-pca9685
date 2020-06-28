@@ -66,7 +66,7 @@ export interface IPCA9685PWM {
   readonly pins: number;
 }
 
-function checkPin(config: number | string | IPWMConfig): number | string {
+function checkPin (config: number | string | IPWMConfig): number | string {
   // It preserves channel's current PWM status.
   // If application should init PWM before use, it's your task.
 
@@ -84,38 +84,38 @@ export class PCA9685PWM implements IPCA9685PWM {
   private _ch = 0;
   private _board = 0;
 
-  public get ch(): number { return this._ch; }
-  public get board(): number { return this._board; }
-  public get frequency(): number { return PCA9685PWM._pca9685[this.board].frequency; }
-  public get dutyCycle(): number { return this.read(); }
+  public get ch (): number { return this._ch; }
+  public get board (): number { return this._board; }
+  public get frequency (): number { return PCA9685PWM._pca9685[this.board].frequency; }
+  public get dutyCycle (): number { return this.read(); }
 
   /* For SoftPWM compatibility */
   /* istanbul ignore next */
-  public get range(): number { return publicConst.stepsPerCycle; }
+  public get range (): number { return publicConst.stepsPerCycle; }
   /* istanbul ignore next */
-  public get pins(): number { return this.ch + this.board * publicConst.maxChannelsPerBoard; }
+  public get pins (): number { return this.ch + this.board * publicConst.maxChannelsPerBoard; }
 
-  public write(dutyCycle: number): void {
+  public write (dutyCycle: number): void {
     PCA9685PWM._pca9685[this.board].setDutyCycle(this.ch, dutyCycle);
   }
 
-  private read(): number {
+  private read (): number {
     return PCA9685PWM._pca9685[this.board].dutyCycle(this.ch);
   }
 
-  public on(): void {
+  public on (): void {
     PCA9685PWM._pca9685[this.board].channelOn(this.ch);
   }
 
-  public off(): void {
+  public off (): void {
     PCA9685PWM._pca9685[this.board].channelOff(this.ch);
   }
 
-  public allOff(): void {
+  public allOff (): void {
     PCA9685PWM._pca9685[this.board].channelOff();
   }
 
-  constructor(config: number | string | IPWMConfig) {
+  constructor (config: number | string | IPWMConfig) {
     const pin: (number | string) = checkPin(config);
 
     let port = 0;
@@ -145,7 +145,7 @@ export class PCA9685PWM implements IPCA9685PWM {
   }
 
   /* istanbul ignore next */
-  public destroy(): void {
+  public destroy (): void {
     // It does not destroy I2C communication.
   }
 }
@@ -156,7 +156,7 @@ export const module: IPWMFactory = {
     if given pin is a non-number string (e.g., 'GPIO22'), SoftPWN.
     if gicen pin represents a number (e.g., 22 or '022'), PCA9685PWM.
   */
-  createPWM(config: number | string | IPWMConfig) {
+  createPWM (config: number | string | IPWMConfig) {
     const pin: (number | string) = checkPin(config);
 
     if (typeof pin === 'string' && isNaN(Number(pin))) {
