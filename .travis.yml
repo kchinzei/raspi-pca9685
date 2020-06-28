@@ -14,5 +14,6 @@
   before_script:
     - npm install typescript
     - npm install eslint
+    - npm install @typescript-eslint/eslint-plugin
     - npm install npm-run-all
     - npm install prettier
