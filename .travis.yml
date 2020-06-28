@@ -11,6 +11,8 @@
     - cd pigpio
     - make
     - sudo make install
+    - cd ..
+    - rm -r pigpio
   before_script:
     - npm install typescript
     - npm install eslint
