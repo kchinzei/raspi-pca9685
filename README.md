@@ -8,7 +8,7 @@
 Hardware PWM by PCA9685.
 Raspi PCA9685 PWM is built upon
 [Raspi i2c](https://github.com/nebrius/raspi-i2c) to
-provide PWM outputs by controling PCA9685 via I2C connection.
+provide PWM outputs by controlling PCA9685 via I2C connection.
 It's intended to work on PCA9685 boards such as
 from [Adafruit](https://www.adafruit.com/product/815).
 
@@ -103,7 +103,7 @@ class PCA9685PWM {
 
   write(dutyCycle: number): void; // Activate PWM by dutyCycle [0,1].
   on(): void; // Turn on this channel.
-  off(): void; // Turn of this channel.
+  off(): void; // Turn off this channel.
   allOff(): void; // Turn off all channels on the board.
 }
 ```
@@ -131,7 +131,7 @@ You can use
 extra cost to buy a hardware PWM board. But you may consider using hardware PWM
 if the following occasions required;
 
-- Gitter-free output,
+- Jitter-free output,
 - Linearity at low PWM output,
 - Many outputs,
 - Less burden to CPU.
@@ -140,7 +140,7 @@ You can determine if you need hardware PWM, or software PWM is
 sufficient for your purpose, by prototyping using
 [raspi-soft-pwm](https://github.com/nebrius/raspi-soft-pwm).
 A prototype code may look like this (the sample code modified from
-[README.md](https://github.com/nebrius/raspi-soft-pwm/blob/master/README.md).
+[README.md](https://github.com/nebrius/raspi-soft-pwm/#README.md).
 
 ```TypeScript
 import { init } from 'raspi';
@@ -183,7 +183,7 @@ init(() => {
 
 `createPWM()` takes a parameter same as the constructor of
 `PCA9685PWM` and `SoftPWM`. When a number or a string that can be
-decordable as number is given to `pin`, `createPWM()` instantiates a
+convertible to number is given to `pin`, `createPWM()` instantiates a
 `PCA9685PWM` object. Else, a `SoftPWM` object is returned. All public
 members and methods of `SoftPWM` are available in `PCA9685PWM`.
 
@@ -196,15 +196,7 @@ members and methods of `SoftPWM` are available in `PCA9685PWM`.
   off. In contrast, the outputs of PCA9685 persist unless an init is sent.
 
 - This module cannot detect how many PCA9685 boards are installed.
-  If you attempt to access a port not physically existing, an exception will
-  be thrown.
-
-- I tested it using one PCA9685 board.
-
-### Known bugs
-
-Should never be, again...
-(To be collected...)
+  If you attempt to access a port not physically existing, an exception will be thrown.
 
 ## Credits
 
