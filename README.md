@@ -56,11 +56,24 @@ init(() => {
 ```TypeScript
 export const publicConst = {
     maxChannelsPerBoard: 16,   // Number of channels in a PCA9685.
-    maxBoards: 62,      // Number of boards that can cascade to I2C bus.
+    maxBoards: 64,      // Number of boards that can cascade to I2C bus.
+	inhibitedBoard: 0xB0, // PCA9685 AllCall address
     stepsPerCycle: 4096,    // PCA9685 has 12-bit PWM.
     defaultFrequency: 200,  // Used internally as constructor's default
 }
 ```
+
+PCA9685 has a hardware fixed reserved address 0xE0, AllCall address.
+`inhibitedBoard` is for this. Removing this, actual adressable boards
+are 63.
+
+Actual maximum board number depends on your I2C addressing policy.
+While PCA9685 can assign I2C address ranging 0x40 - 0x7F,
+[the I2C bus protocol assigns special purposes above 0x78]
+(https://www.i2c-bus.org/addressing/). You can still use these
+addresses if you keep your system closed and under your control.
+If you have other I2C devices in 0x40 - 0x7F, you need to exclude them
+from assining to PCA9685 of course.
 
 ### Interface and Class
 
