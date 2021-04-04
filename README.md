@@ -57,7 +57,7 @@ init(() => {
 export const publicConst = {
     maxChannelsPerBoard: 16,   // Number of channels in a PCA9685.
     maxBoards: 64,      // Number of boards that can cascade to I2C bus.
-	inhibitedBoard: 0xB0, // PCA9685 AllCall address
+    inhibitedBoard: 0xB0, // PCA9685 AllCall address
     stepsPerCycle: 4096,    // PCA9685 has 12-bit PWM.
     defaultFrequency: 200,  // Used internally as constructor's default
 }

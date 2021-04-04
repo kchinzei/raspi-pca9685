@@ -35,9 +35,7 @@
     - "arm64"
   language: node_js
   "node_js":
-    - "11"
     - "12"
-    - "13"
     - "14"
   script: "npm run test"
   before_install:
