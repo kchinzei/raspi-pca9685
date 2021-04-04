@@ -58,9 +58,9 @@ import { I2C } from 'raspi-i2c';
  */
 const privateConst = {
   modeRegister1: 0x00, // MODE1
-  modeRegister1Default: 0x01,
+  modeRegister1Default: 0x01, // Internal clock, No auto-increment, Awake, No sub1-3 addr, Allcall.
   modeRegister2: 0x01, // MODE2
-  modeRegister2Default: 0x04,
+  modeRegister2Default: 0x04, // Outputs not inverted, at STOP command, Totem pole, follow OE pin.
   channel0OnStepLowByte: 0x06, // LED0_ON_L
   channel0OnStepHighByte: 0x07, // LED0_ON_H
   channel0OffStepLowByte: 0x08, // LED0_OFF_L
@@ -81,7 +81,8 @@ const privateConst = {
 
 export const publicConst = {
   maxChannelsPerBoard: 16, // per PCA9685
-  maxBoards: 62, // 6bit h/w address (saying so, it's 62)
+  maxBoards: 64, // 6bit h/w address (Note two inhibited address)
+  inhibitedBoard: 0xE0 - defaultAddress, // PCA9685 AllCall address
   stepsPerCycle: 4096,
   defaultFrequency: 200 // Sufficient for LED PWM
 };
@@ -97,7 +98,7 @@ const onOffsetPerCh: number[] = [
   0x02, 0x0A, 0x06, 0x0E,
   0x01, 0x09, 0x05, 0x0D,
   0x03, 0x0B, 0x07, 0x0F];
-const onOffsetPerBourd: number[] = [
+const onOffsetPerBoard: number[] = [
   0x00, 0x20, 0x10, 0x30,
   0x08, 0x28, 0x18, 0x38,
   0x04, 0x34, 0x14, 0x34,
@@ -116,7 +117,7 @@ const onOffsetPerBourd: number[] = [
   0x03, 0x23, 0x13, 0x33,
   0x0B, 0x2B, 0x1B, 0x3B,
   0x07, 0x27, 0x17, 0x37,
-  0x0F, 0x2F]; // max 62 board.
+  0x0F, 0x2F, 0x1F, 0x3F];
 
 export interface IPCA9685Module {
   readonly address: number;
@@ -139,6 +140,10 @@ function checkChannel (val: any): void {
 function checkBoard (val: any): void {
   if (typeof val !== 'number' || val < 0 || val >= publicConst.maxBoards) {
     throw new Error(`Invalid board ${val as string}, out of [0,${publicConst.maxBoards})`);
+  }
+  /* istanbul ignore if */
+  if (typeof val === 'number' && val == privateConst.inhibitedBoard) {
+    throw new Error(`Invalid board ${val as string}, attempting one of inhibited board number.`);
   }
 }
 
@@ -194,7 +199,7 @@ export class PCA9685Module implements IPCA9685Module {
     }
     if (dutyCycleUInt < 0) dutyCycleUInt = 0;
 
-    const onStep = Math.round(publicConst.stepsPerCycle / publicConst.maxChannelsPerBoard * (onOffsetPerCh[ch] + onOffsetPerBourd[this.board] / publicConst.maxBoards));
+    const onStep = Math.round(publicConst.stepsPerCycle / publicConst.maxChannelsPerBoard * (onOffsetPerCh[ch] + onOffsetPerBoard[this.board] / publicConst.maxBoards));
     let offStep = onStep + dutyCycleUInt;
     /* istanbul ignore else */
     if (offStep > publicConst.stepsPerCycle) offStep -= publicConst.stepsPerCycle;
