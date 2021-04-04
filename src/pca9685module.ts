@@ -82,7 +82,7 @@ const privateConst = {
 export const publicConst = {
   maxChannelsPerBoard: 16, // per PCA9685
   maxBoards: 64, // 6bit h/w address (Note two inhibited address)
-  inhibitedBoard: 0xE0 - defaultAddress, // PCA9685 AllCall address
+  inhibitedBoard: 0xE0 - privateConst.defaultAddress, // PCA9685 AllCall address
   stepsPerCycle: 4096,
   defaultFrequency: 200 // Sufficient for LED PWM
 };
@@ -142,8 +142,8 @@ function checkBoard (val: any): void {
     throw new Error(`Invalid board ${val as string}, out of [0,${publicConst.maxBoards})`);
   }
   /* istanbul ignore if */
-  if (typeof val === 'number' && val == privateConst.inhibitedBoard) {
-    throw new Error(`Invalid board ${val as string}, attempting one of inhibited board number.`);
+  if (typeof val === 'number' && val === publicConst.inhibitedBoard) {
+    throw new Error(`Invalid board ${val}, attempting inhibited board number.`);
   }
 }
 
