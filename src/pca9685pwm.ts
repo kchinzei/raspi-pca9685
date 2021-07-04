@@ -154,7 +154,7 @@ export const module: IPWMFactory = {
   /*
     Factory function that return either SoftPWM or PCA9635PWM.
     if given pin is a non-number string (e.g., 'GPIO22'), SoftPWN.
-    if gicen pin represents a number (e.g., 22 or '022'), PCA9685PWM.
+    if given pin represents a number (e.g., 22 or '022'), PCA9685PWM.
   */
   createPWM (config: number | string | IPWMConfig) {
     const pin: (number | string) = checkPin(config);

@@ -28,15 +28,18 @@
 #
 # Our test needs RasPi. Here we test compile and lint.
   os: "linux"
-  dist: "xenial"
+  dist:
+    - "xenial"
+    - "bionic"
   arch:
     # Travis CI only support arm64.
     # "arm"
     - "arm64"
   language: node_js
   "node_js":
-    - "12"
-    - "14"
+    # - "12"
+    # - "14"
+    - "16"
   script: "npm run test"
   before_install:
     - git clone https://github.com/joan2937/pigpio

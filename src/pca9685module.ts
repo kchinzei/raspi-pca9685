@@ -163,7 +163,7 @@ function checkFrequency (val: any): number {
 
 /*
   class PCA9685Module takes care of a PCA9685 board, including.
-  - Initializing the baord.
+  - Initializing the board.
   - Setting PWM frequency.
   - Reading/writing PWM duty cycle of each channel.
   - On/Off each channel.
